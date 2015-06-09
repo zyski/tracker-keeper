@@ -1,0 +1,70 @@
+<div class="modal-backdrop in"></div>
+<div class="modal in" style="display: block">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" ng-click="close(undefined)"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">Find Task</h4>
+      </div>
+
+      <div class="modal-body">
+        <form class="form-inline" role="form">
+          <div class="zg-toolbar">
+              
+            <div class="input-group">
+              <input ng-model="searchTasks" type="text" class="form-control" placeholder="Type to search..." focus-on="searchTasks">
+              <span class="input-group-btn">
+                <button type="button" class="btn btn-default" ng-click="searchTasks = ''">
+                  <span class="glyphicon glyphicon-remove"></span>
+                </button>
+              </span>
+            </div> <!-- input-group -->
+
+            <div class="btn-group">
+              <button type="button" class="btn btn-default" ng-class="{disabled: taskPager.current === 1}" ng-click="taskPager.pagePrevious()">
+                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+              </button>
+              <button type="button" class="btn btn-default disabled">
+                {{taskPager.current}}
+              </button>
+              <button type="button" class="btn btn-default" ng-class="{disabled: taskPager.current === taskPager.last}" ng-click="taskPager.pageNext()">
+                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+              </button>
+            </div> <!-- btn-group -->
+
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" ng-model="completed" ng-change="getTasks()"> Completed
+              </label>
+            </div>
+
+            <button class="btn btn-default" ng-click="close(null)">Clear</button>
+
+          </div> <!-- zg-toolbar -->
+        </form>      
+
+        <table class="table table-condensed table-hover">
+          <thead>
+            <tr>
+              <th class=""><a href="" ng-click="changeSort('id')">Id</a></th>
+              <th class="col-sm-5"><a href="" ng-click="changeSort('name')">Task Name</a></th>
+              <th class="col-sm-3"><a href="" ng-click="changeSort('projectName')">Project Name</a></th>
+              <th class=""><a href="" ng-click="changeSort('due')">Due</a></th>
+              <th class=""></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-class="{'text-muted': task.completed}" ng-repeat="task in tasks | filter:searchTasks | orderBy:[sortKey, 'name']:sortOrder | zgPager:taskPager" ng-click="close(task.id)">
+              <td class="">{{task.id}}</td>
+              <td class="">{{task.name}}</td>
+              <td class="">{{task.projectName}}</td>
+              <td class="">{{task.due | date:'mediumDate'}}</td>
+              <td class=""><span class="glyphicon glyphicon-ok" ng-show="currentId === task.id"></span></td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div> <!-- modal-body -->
+    </div> <!-- modal-content -->
+  </div> <!-- modal-dialog -->
+</div> <!-- modal -->
