@@ -7,9 +7,9 @@ Date.prototype.toISODateString = function() {
    return yyyy + '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]); // padding
 };
 
-var zyski = angular.module('myApp.zyski', []);
+var module = angular.module('myApp.zyski', []);
 
-zyski.filter('time', [function() {
+module.filter('time', [function() {
   return function(ms, units) {
 
     if (units === 'minutes') {
@@ -32,11 +32,23 @@ zyski.filter('time', [function() {
 }]);
 
 
+module.filter('taskName', ['TaskList', function(TaskList) {
+  return function(taskId) {
+    var task = TaskList.findId(taskId);
+    if (task) {
+      return task.name;
+    } else {
+      return 'No Task';
+    }
+  }
+}]);
+
+
 /**
   * Hold all object keys
   * NB: A key should never start at zero! 
   */
-zyski.factory('Keys', [function() {
+module.factory('Keys', [function() {
 
   // Private Properties 
   var keys = {};
@@ -78,7 +90,7 @@ zyski.factory('Keys', [function() {
 /**
   * Task
   */
-zyski.factory('Task', ['Keys', function(Keys) {
+module.factory('Task', ['Keys', function(Keys) {
 
   // Private Properties 
 
@@ -129,7 +141,7 @@ zyski.factory('Task', ['Keys', function(Keys) {
 }]);
 
 
-zyski.factory('TaskList', ['$filter', 'Task', function($filter, Task) {
+module.factory('TaskList', ['$filter', 'Task', function($filter, Task) {
 
   // Private Properties 
   var tasksCache = {};
@@ -265,7 +277,7 @@ zyski.factory('TaskList', ['$filter', 'Task', function($filter, Task) {
   * Hold a single piece of work performed
   * Each piece of work will have a time resolution down to ms
   */
-zyski.factory('Work', ['Keys', function(Keys) {
+module.factory('Work', ['Keys', function(Keys) {
 
   // Private Properties 
 
@@ -315,7 +327,7 @@ zyski.factory('Work', ['Keys', function(Keys) {
   * A shift worth of work, with no gaps in time between work i.e.
   * work[0].finished === work[1].started 
   */
-zyski.factory('Shift', ['$filter', 'Keys', 'Work', function($filter, Keys, Work) {
+module.factory('Shift', ['$filter', 'Keys', 'Work', function($filter, Keys, Work) {
 
   // Prototype
   Shift.prototype = {
@@ -435,7 +447,7 @@ zyski.factory('Shift', ['$filter', 'Keys', 'Work', function($filter, Keys, Work)
 /**
   * Hold a set of Shifts
   */
-zyski.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, Shift, TaskList) {
+module.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, Shift, TaskList) {
 
   // Private Properties 
   
@@ -652,7 +664,7 @@ zyski.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, Sh
   * Allows a element to grab focus based on a particular event
   */
 
-zyski.directive('focusOn', [function() {
+module.directive('focusOn', [function() {
     return function (scope, elem, attr) {
       scope.$on('focusOn', function(e, name) {
         if (name === attr.focusOn) {
@@ -662,7 +674,7 @@ zyski.directive('focusOn', [function() {
     }
 }]);
 
-zyski.factory('focus', ['$rootScope', '$timeout', function($rootScope, $timeout) {
+module.factory('focus', ['$rootScope', '$timeout', function($rootScope, $timeout) {
     return function (name) {
       $timeout(function () {
         $rootScope.$broadcast('focusOn', name);
@@ -676,7 +688,7 @@ zyski.factory('focus', ['$rootScope', '$timeout', function($rootScope, $timeout)
  * use on an input field, on focus it will display model, on blur display using filter. 
  *
  */
-zyski.directive('zgViewas', ['$filter', '$locale', function ($filter, $locale) {
+module.directive('zgViewas', ['$filter', '$locale', function ($filter, $locale) {
     return {
       priority: 1,
       require: '?ngModel',
@@ -743,7 +755,7 @@ zyski.directive('zgViewas', ['$filter', '$locale', function ($filter, $locale) {
  *
  */
  
-zyski.filter('zgPager', [function() {
+module.filter('zgPager', [function() {
     return function(array, pager) {
       return pager.filter(array);
     }
@@ -761,7 +773,7 @@ zyski.filter('zgPager', [function() {
   * - ui uses the pager service to know what to display
   *
   */
-zyski.factory('zgPager', ['Keys', function(Keys) {
+module.factory('zgPager', ['Keys', function(Keys) {
 
   // Private Properties 
 
@@ -843,7 +855,7 @@ zyski.factory('zgPager', ['Keys', function(Keys) {
 /**
   * Controller   findTaskIdCtrl
   */
-zyski.controller('findTaskIdCtrl', ['$scope', '$document', 'TaskList', 'currentId', 'close', 'zgPager', 'focus',
+module.controller('findTaskIdCtrl', ['$scope', '$document', 'TaskList', 'currentId', 'close', 'zgPager', 'focus',
 	function ($scope, $document, TaskList, currentId, close, zgPager, focus) {
 
     // Set a body class for bootstrap modal
@@ -894,5 +906,44 @@ zyski.controller('findTaskIdCtrl', ['$scope', '$document', 'TaskList', 'currentI
 
     $scope.init();
 }]);
+
+/**
+  * Controller   editTextCtrl
+  */
+module.controller('editTextCtrl', ['$scope', '$document', 'title', 'text', 'close', 'focus',
+	function ($scope, $document, title, text, close, focus) {
+    
+    // Set a body class for bootstrap modal
+    var body = $document.find('body');
+    body.toggleClass('modal-open', 1);
+
+    // Bind some shortcut keys for controlling the modal
+    body.on('keydown', keyhandler);
+
+    $scope.close = function (result) {
+      // clean up shortcut keys and body class
+      body.off('keydown', keyhandler);
+      body.toggleClass('modal-open', 0);
+      close(result);
+     };
+
+    function keyhandler (e) {    
+      // esc
+      if (e.keyCode == 27) {
+        $scope.close(undefined);
+      }
+    }
+
+    $scope.init = function () {
+      // Use the injected input 
+      $scope.title = title;
+      $scope.text = text;
+
+      focus('text');
+    }
+
+    $scope.init();
+}]);
+
 
 

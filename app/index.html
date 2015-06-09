@@ -19,22 +19,19 @@
 -->
 </head>
 <body>
-  <ul class="list-inline">
-    <li><a href="#/view1">view1</a></li>
-    <li><a href="#/view2">view2</a></li>
-    <li><a href="#/task">task</a></li>
-    <li><a href="#/timesheet">timesheet</a></li>
-  </ul>
-
   <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
   <![endif]-->
 
   <div ng-view></div>
 
-  <div class="container">
-    <p>Angular seed app: v<span app-version></span></p>
-  </div>
+  <nav class="zg-page-header">
+    <div class="container">
+      <ul class="list-inline">
+        <li>Angular seed app: v<span app-version></span></li>
+      </ul>
+    </div>
+  </nav>
 
 
   <!-- In production use:
@@ -42,14 +39,16 @@
   -->
   <script src="bower_components/angular/angular.js"></script>
   <script src="bower_components/angular-route/angular-route.js"></script>
+  <script src="components/ui-bootstrap/ui-bootstrap-tpls-0.13.0.js"></script>
+  <script src="components/angularModalService/angularModalService.js"></script>
+  <script src="components/zyski/zyski.js"></script>
+  <script src="components/version/version.js"></script>
+  <script src="components/version/version-directive.js"></script>
+  <script src="components/version/interpolate-filter.js"></script>
   <script src="app.js"></script>
   <script src="view1/view1.js"></script>
   <script src="view2/view2.js"></script>
   <script src="view-task/view-task.js"></script>
-  <script src="components/version/version.js"></script>
-  <script src="components/version/version-directive.js"></script>
-  <script src="components/version/interpolate-filter.js"></script>
-  <script src="components/angularModalService/angularModalService.js"></script>
-  <script src="components/zyski/zyski.js"></script>
+  <script src="view-timesheet/view-timesheet.js"></script>
 </body>
 </html>

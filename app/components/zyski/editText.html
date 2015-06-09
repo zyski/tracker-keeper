@@ -1,0 +1,22 @@
+<div class="modal-backdrop in"></div>
+<div class="modal in" style="display: block">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" ng-click="close(undefined)"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">{{title}}</h4>
+      </div> <!-- modal-header -->
+
+      <div class="modal-body">
+        <form>
+          <div class="zg-toolbar">
+            <button class="btn btn-default" ng-click="close(text)">OK</button>
+            <button class="btn btn-default" ng-click="close(undefined)">Cancel</button>
+          </div> <!-- zg-toolbar -->
+
+          <textarea class="form-control" rows="15" ng-model="text" focus-on="text"></textarea>
+        </form>      
+      </div> <!-- modal-body -->
+    </div> <!-- modal-content -->
+  </div> <!-- modal-dialog -->
+</div> <!-- modal -->
