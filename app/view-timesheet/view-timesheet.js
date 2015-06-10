@@ -148,7 +148,7 @@ module.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$routePa
     }).then(function(modal) {
       // modal now on screen
       modal.close.then(function(result) {
-        if (result) {
+        if (result || result === '') {
           work.description = result;
         }
       });
