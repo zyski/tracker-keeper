@@ -44,6 +44,17 @@ module.filter('taskName', ['TaskList', function(TaskList) {
 }]);
 
 
+module.filter('dueInDays', [function() {
+  //todo: convert into work days
+  return function(due) {
+    if (due) {
+      return Math.round((due.getTime() - Date.now()) / 86400000);
+    } else {
+      return '';
+    }
+  }
+}]);
+
 /**
   * Hold all object keys
   * NB: A key should never start at zero! 
@@ -93,14 +104,14 @@ module.factory('Keys', [function() {
 module.factory('Task', ['Keys', function(Keys) {
 
   // Private Properties 
-
+  var futureDate = Date.now() + 86400000 * 365 * 10;
   // Private Functions
 
   // Prototype
   Task.prototype = {
-    // number: due date converted to ms. null === 0
+    // number: due date converted to ms.
     get getTimeDue () {
-      return this.due ? this.due.getTime() : 0;
+      return this.due ? this.due.getTime() : futureDate;
     }
   }
 
@@ -191,6 +202,16 @@ module.factory('TaskList', ['$filter', 'Task', function($filter, Task) {
       var results = [];
       for (var id in tasksCache) {
         if (tasksCache[id].completed === completed) {
+          results.push(tasksCache[id]);
+        }
+      }
+      return results;
+    },
+
+    findDue: function () {
+      var results = [];
+      for (var id in tasksCache) {
+        if (tasksCache[id].due) {
           results.push(tasksCache[id]);
         }
       }

@@ -277,6 +277,8 @@ module.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$routePa
     $scope.runSummaryReport();
     saveSettings();
     
+    $scope.tasks = TaskList.findDue();
+    
     focus('newWorkDesc');
   };
 
