@@ -98,6 +98,10 @@ module.factory('Task', ['Keys', function(Keys) {
 
   // Prototype
   Task.prototype = {
+    // number: due date converted to ms. null === 0
+    get getTimeDue () {
+      return this.due ? this.due.getTime() : 0;
+    }
   }
 
   // Contructor
