@@ -48,7 +48,7 @@ module.filter('dueInDays', [function() {
   //todo: convert into work days
   return function(due) {
     if (due) {
-      return Math.round((due.getTime() - Date.now()) / 86400000);
+      return Math.round((due.getTime() - Date.now()) / 86400000) + 1;
     } else {
       return '';
     }
@@ -137,6 +137,9 @@ module.factory('Task', ['Keys', function(Keys) {
     // string: description of the task
     this.description = json.description || '';
 
+    // string: notes on the task
+    this.notes = json.notes || '';
+
     // string: the project this task is part of
     this.projectName = json.projectName || '';
 
@@ -145,6 +148,13 @@ module.factory('Task', ['Keys', function(Keys) {
       this.due = new Date(json.due);
     } else {
       this.due = null;
+    }
+
+    // date: date task was closed, convert from date string to date object
+    if (json.closed) {
+      this.closed = new Date(json.closed);
+    } else {
+      this.closed = null;
     }
 
     // bool: has the task been completed?
@@ -211,7 +221,7 @@ module.factory('TaskList', ['$filter', 'Task', function($filter, Task) {
     findDue: function () {
       var results = [];
       for (var id in tasksCache) {
-        if (tasksCache[id].due) {
+        if (tasksCache[id].due && tasksCache[id].completed === false) {
           results.push(tasksCache[id]);
         }
       }
@@ -728,17 +738,17 @@ module.directive('zgViewas', ['$filter', '$locale', function ($filter, $locale) 
         var elementValue = '';
 
         // Parse attributes "filter[:format]"
-        filter = attrs.zgViewas.split(':', 3);
+        filter = attrs.zgViewas.match(/(.*?)\:(.*)/);
 
         // Custom validators to run on parsers / formatters
         // Populates elementValue used for rendering element
         var validator = function(value) {
-          elementValue = $filter(filter[0])(value, filter[1], filter[2]);
+          elementValue = $filter(filter[1])(value, filter[2]);
           if (!ctrl.$isEmpty(value) && elementValue === ctrl.$viewValue) {
-            ctrl.$setValidity(filter[0], false);
+            ctrl.$setValidity(filter[1], false);
             return value;
           } else {
-            ctrl.$setValidity(filter[0], true);
+            ctrl.$setValidity(filter[1], true);
             return value;
           }            
         };

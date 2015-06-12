@@ -11,135 +11,149 @@
 
 <div class="container">
   <div class="row">
-    <div class="col-sm-12">
+    <div class="col-sm-12 col-md-9">
 
-      <div class="page-header">
-        <h1 class="" id="nav-summary">{{record.name}}&nbsp;</h1>
-      </div>
-      <div class="zg-toolbar">
-        <form class="form-inline" novalidate name="" role="form">
-          <div class="btn-group" role="group" aria-label="...">
-            <button type="button" class="btn btn-default" ng-click="openRecord()">Open</button>
-            <button type="button" class="btn btn-default" ng-click="createRecord()">New</button>
+      <div class="row">
+        <div class="col-sm-12">
+
+          <div class="page-header">
+            <h1 class="" id="nav-summary">{{record.name}}&nbsp;</h1>
           </div>
-          <div class="btn-group" role="group" aria-label="...">
-            <button type="button" class="btn btn-default" ng-class="recordChanged()" ng-click="saveRecord()">Save</button>
-            <button type="button" class="btn btn-default" ng-click="revertRecord()">Revert</button>
+          <div class="zg-toolbar">
+            <form class="form-inline" novalidate name="" role="form">
+              <div class="btn-group" role="group" aria-label="...">
+                <button type="button" class="btn btn-default" ng-click="openRecord()">Open</button>
+                <button type="button" class="btn btn-default" ng-click="createRecord()">New</button>
+              </div>
+              <div class="btn-group" role="group" aria-label="...">
+                <button type="button" class="btn btn-default" ng-class="recordChanged()" ng-click="saveRecord()">Save</button>
+                <button type="button" class="btn btn-default" ng-click="revertRecord()">Revert</button>
+              </div>
+            </form>
           </div>
-        </form>
-      </div>
 
-      <form novalidate name="fTask" class="form-horizontal" role="form">
-        <div class="row">
-          <div class="col-sm-6">
-            <div class="form-group">
-              <label for="" class="col-sm-4 control-label">Task Name</label>
-              <div class="col-sm-8">
-                <input type="text" class="form-control" ng-model="record.name" placeholder="Enter a task name" focus-on="taskName">
-              </div>
-            </div>
+          <form novalidate name="fTask" class="form-horizontalX" role="form">
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label for="">Task Name</label>
+                  <input type="text" class="form-control" ng-model="record.name" placeholder="Enter a task name" focus-on="taskName">
+                </div>
 
-            <div class="form-group">
-              <label for="" class="col-sm-4 control-label">Description</label>
-              <div class="col-sm-8">
-                <textarea class="form-control" rows="6" ng-model="record.description"></textarea>
-              </div>
-            </div>
+                <div class="form-group">
+                  <label for="">Description</label>
+                  <textarea class="form-control" rows="10" ng-model="record.description"></textarea>
+                </div>
 
-            <div class="form-group">
-              <label for="" class="col-sm-4 control-label">Project Name</label>
-              <div class="col-sm-8">
-                <input type="text" class="form-control" ng-model="record.projectName" placeholder="">
-              </div>
-            </div>
-          </div> <!-- column 1 -->
+                <div class="form-group">
+                  <label for="">Project</label>
+                  <input type="text" class="form-control" ng-model="record.projectName" placeholder="">
+                </div>
+
+              </div> <!-- column 1 -->
 
 
-          <div class="col-sm-6">
-            <div class="form-group">
-              <label for="" class="col-sm-4 control-label">ID</label>
-              <div class="col-sm-8">
-                <input type="text" class="form-control" disabled ng-model="record.id">
-              </div>
-            </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label for="">ID</label>
+                  <input type="text" class="form-control" disabled ng-model="record.id">
+                </div>
 
-            <div class="form-group">
-              <label for="" class="col-sm-4 control-label">Created</label>
-              <div class="col-sm-8">
-                <input type="text" class="form-control" ng-model="record.created" zg-viewas="date:'dd/MM/yyyy hh:mm a'" disabled>
-              </div>
-            </div>
+                <div class="form-group">
+                  <label for="">Created</label>
+                  <input type="text" class="form-control" ng-model="record.created" zg-viewas="date:dd/MM/yyyy hh:mm a" disabled>
+                </div>
 
-            <div class="form-group">
-              <label for="" class="col-sm-4 control-label">Due</label>
-              <div class="col-sm-8">
-                <input type="date" class="form-control" ng-model="record.due" placeholder="">
-              </div>
-            </div>
+                <div class="form-group">
+                  <label for="">Due</label>
+                  <input type="date" class="form-control" ng-model="record.due" ng-model-options="{ timezone: 'UTC' }" placeholder="">
+                </div>
 
-            <div class="form-group">
-              <label for="" class="col-sm-4 control-label">Completed</label>
-              <div class="col-sm-8">
+                <div class="form-group">
+                  <label for="">Notes</label>
+                  <textarea class="form-control" rows="3" ng-model="record.notes"></textarea>
+                </div>
+
                 <div class="checkbox">
                   <label>
-                    <input type="checkbox" ng-model="record.completed">
+                    <input type="checkbox" ng-model="record.completed"> Completed
                   </label>
                 </div>
-              </div>
-            </div>
 
-          </div> <!-- column 2 -->
-        </div> <!-- row -->
-      </form>
-  
-    </div> <!-- column -->
-  </div> <!-- row -->
+              </div> <!-- column 2 -->
+            </div> <!-- row -->
+          </form>
+        </div> <!-- column -->
+      </div> <!-- row -->
 
 
-  <div class="row">
-    <div class="col-sm-12">
+      <div class="row">
+        <div class="col-sm-12">
 
-      <div class="page-header">
-        <h1 class="" id="">Work Summary<br><small>{{summary.start | date:'d MMMM yyyy'}} - {{summary.end | date:'d MMMM yyyy'}}</small></h1>
-      </div>
-
-      <div class="zg-toolbar">
-        <form class="form-inline" novalidate name="" role="form">
-          <div class="btn-group" dropdown is-open="status.rptTypeOpen">
-            <button type="button" class="btn btn-default dropdown-toggle" dropdown-toggle>
-              {{summary.typeName}}
-              <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-              <li ng-repeat="type in summary.types"><a href="" ng-click="setSummaryReport($index); status.rptTypeOpen = 0">{{type}}</a></li>
-            </ul>
+          <div class="page-header">
+            <h1 class="" id="">Work Summary<br><small>{{summary.start | date:'d MMMM yyyy'}} - {{summary.end | date:'d MMMM yyyy'}}</small></h1>
           </div>
-        </form>
-      </div> <!-- zg-toolbar -->
 
+          <div class="zg-toolbar">
+            <form class="form-inline" novalidate name="" role="form">
+              <div class="btn-group" dropdown is-open="status.rptTypeOpen">
+                <button type="button" class="btn btn-default dropdown-toggle" dropdown-toggle>
+                  {{summary.typeName}}
+                  <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                  <li ng-repeat="type in summary.types"><a href="" ng-click="setSummaryReport($index); status.rptTypeOpen = 0">{{type}}</a></li>
+                </ul>
+              </div>
+            </form>
+          </div> <!-- zg-toolbar -->
+
+          <table class="table table-condensed">
+            <thead>
+              <tr>
+                <th class="col-sm-2">Started</th>
+                <th class="col-sm-2 text-right">Duration</th>
+                <th class="">Comments</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="(key, work) in summary.report.work">
+                <td><a href="#/timesheet/{{work.day}}">{{work.day | date:'dd MMM yy (EEE)'}}</a></td>
+                <td class="text-right">{{work.duration | time}}</td>
+                <td class="text-pre-line">{{work.description}}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td></td>
+                <td class="text-right">{{summary.report.duration | time}}</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+
+        </div> <!-- column -->
+      </div> <!-- row -->
+
+    </div> <!-- column 1 -->
+
+    <div class="hidden-xs hidden-sm col-md-3">
+      <h3></h3>
       <table class="table table-condensed">
         <thead>
           <tr>
-            <th class="col-sm-2">Started</th>
-            <th class="col-sm-2 text-right">Duration</th>
-            <th class="">Comments</th>
+            <th>Tasks coming due</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="(key, work) in summary.report.work">
-            <td><a href="#/timesheet/{{work.day}}">{{work.day | date:'dd MMM yy (EEE)'}}</a></td>
-            <td class="text-right">{{work.duration | time}}</td>
-            <td class="text-pre-line">{{work.description}}</td>
+          <tr ng-repeat="task in tasks | orderBy:'getTimeDue' | limitTo:5">
+            <td class="text-pre-line"><a href="" ng-href="#/task/{{task.id}}"><strong>{{task.name}}</strong></a><br>{{task.notes}}</td>
+            <td class="text-right">{{task.due | dueInDays}}</td>
           </tr>
         </tbody>
-        <tfoot>
-          <tr>
-            <td></td>
-            <td class="text-right">{{summary.report.duration | time}}</td>
-            <td></td>
-          </tr>
-        </tfoot>
       </table>
-    </div> <!-- column -->
-  </div> <!-- row -->
+    </div> <!-- column 2 -->
+
+  </adiv> <!-- row -->
 </div> <!-- container -->

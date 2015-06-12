@@ -167,6 +167,8 @@ angular.module('myApp.view-task', ['ngRoute', 'angularModalService'])
     $scope.master = angular.copy($scope.record);
     $scope.runSummaryReport();
     saveSettings();
+
+    $scope.tasks = TaskList.findDue();
     focus('taskName');
   };
 

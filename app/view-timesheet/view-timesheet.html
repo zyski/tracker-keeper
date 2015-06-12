@@ -179,7 +179,7 @@
         </thead>
         <tbody>
           <tr ng-repeat="task in tasks | orderBy:'getTimeDue' | limitTo:5">
-            <td class="text-pre-line"><a href="" ng-href="#/task/{{task.id}}"><strong>{{task.name}}</strong></a><br>{{task.description}}</td>
+            <td class="text-pre-line"><a href="" ng-href="#/task/{{task.id}}"><strong>{{task.name}}</strong></a><br>{{task.notes}}</td>
             <td class="text-right">{{task.due | dueInDays}}</td>
           </tr>
         </tbody>
