@@ -32,14 +32,17 @@ angular.module('myApp.view-task', ['ngRoute', 'angularModalService'])
   }
 
   $scope.saveRecord = function () {
+    var id = $scope.record.id;
     $scope.record = TaskList.save($scope.record);
     $scope.master = angular.copy($scope.record);
-    $location.path('task/' + $scope.record.id);
+    if ($scope.record.id === id) {
+      $scope.init();
+    } else {
+      $location.path('task/' + $scope.record.id);
+    }
   };
 
   $scope.revertRecord = function () {
-    //wrong! $scope.record = angular.copy($scope.master);
-    //right!
     angular.copy($scope.master, $scope.record);
   };
 
@@ -168,7 +171,8 @@ angular.module('myApp.view-task', ['ngRoute', 'angularModalService'])
     $scope.runSummaryReport();
     saveSettings();
 
-    $scope.tasks = TaskList.findDue();
+    $scope.reminders = TaskList.findRem();
+    $scope.deadlines = TaskList.findDeadline();
     focus('taskName');
   };
 

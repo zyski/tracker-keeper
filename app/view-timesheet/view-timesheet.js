@@ -17,10 +17,12 @@ module.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$routePa
     $scope.record = ShiftList.findId($scope.dt.toISODateString());
     $scope.master = angular.copy($scope.record);
     $scope.runSummaryReport();
+    $scope.reminders = TaskList.findRem();
+    $scope.deadlines = TaskList.findDeadline();
   };
 
   $scope.revertRecord = function () {
-    $scope.record = angular.copy($scope.master);
+    angular.copy($scope.master, $scope.record);
   };
 
   $scope.deleteRecord = function () {
@@ -277,7 +279,8 @@ module.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$routePa
     $scope.runSummaryReport();
     saveSettings();
     
-    $scope.tasks = TaskList.findDue();
+    $scope.reminders = TaskList.findRem();
+    $scope.deadlines = TaskList.findDeadline();
     
     focus('newWorkDesc');
   };

@@ -48,7 +48,7 @@ module.filter('dueInDays', [function() {
   //todo: convert into work days
   return function(due) {
     if (due) {
-      return Math.round((due.getTime() - Date.now()) / 86400000) + 1;
+      return ((due.getTime() - Date.now()) / 86400000 + 1).toFixed(1);
     } else {
       return '';
     }
@@ -109,9 +109,14 @@ module.factory('Task', ['Keys', function(Keys) {
 
   // Prototype
   Task.prototype = {
-    // number: due date converted to ms.
-    get getTimeDue () {
-      return this.due ? this.due.getTime() : futureDate;
+    // number: deadline date converted to ms.
+    get getTimeDeadline () {
+      return this.deadline ? this.deadline.getTime() : futureDate;
+    },
+
+    // number: reminder date converted to ms.
+    get getTimeRem () {
+      return this.reminder ? this.reminder.getTime() : futureDate;
     }
   }
 
@@ -143,18 +148,18 @@ module.factory('Task', ['Keys', function(Keys) {
     // string: the project this task is part of
     this.projectName = json.projectName || '';
 
-    // date: due date of task, convert from date string to date object
-    if (json.due) {
-      this.due = new Date(json.due);
+    // date: deadline date of task, convert from date string to date object
+    if (json.deadline) {
+      this.deadline = new Date(json.deadline);
     } else {
-      this.due = null;
+      this.deadline = null;
     }
 
-    // date: date task was closed, convert from date string to date object
-    if (json.closed) {
-      this.closed = new Date(json.closed);
+    // date: a date to trigger a reminder for the task
+    if (json.reminder) {
+      this.reminder = new Date(json.reminder);
     } else {
-      this.closed = null;
+      this.reminder = null;
     }
 
     // bool: has the task been completed?
@@ -218,10 +223,20 @@ module.factory('TaskList', ['$filter', 'Task', function($filter, Task) {
       return results;
     },
 
-    findDue: function () {
+    findDeadline: function () {
       var results = [];
       for (var id in tasksCache) {
-        if (tasksCache[id].due && tasksCache[id].completed === false) {
+        if (tasksCache[id].deadline && tasksCache[id].completed === false) {
+          results.push(tasksCache[id]);
+        }
+      }
+      return results;
+    },
+
+    findRem: function () {
+      var results = [];
+      for (var id in tasksCache) {
+        if (tasksCache[id].reminder && tasksCache[id].completed === false) {
           results.push(tasksCache[id]);
         }
       }
