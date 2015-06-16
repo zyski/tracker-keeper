@@ -57,7 +57,7 @@ module.filter('dueInDays', [function() {
 
 /**
   * Hold all object keys
-  * NB: A key should never start at zero! 
+  * NB: A key should never start at zero (due to being a falsey)! 
   */
 module.factory('Keys', [function() {
 
@@ -90,7 +90,7 @@ module.factory('Keys', [function() {
     keys = angular.fromJson(localStorage['Keys']);
   }
 
-  // Return the constructor function
+  // Return the public functions
   return {
     next: next,
     current: current
