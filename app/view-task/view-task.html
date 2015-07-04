@@ -54,6 +54,16 @@
                   <input type="text" class="form-control" ng-model="record.projectName" placeholder="">
                 </div>
 
+                <div class="form-group">
+                  <label for="">Rate per Hour</label>
+                  <input type="number" class="form-control" ng-model="record.rateHour" placeholder="">
+                </div>
+
+                <div class="form-group">
+                  <label for="">Rate per Unit</label>
+                  <input type="number" class="form-control" ng-model="record.rateUnit" placeholder="">
+                </div>
+
               </div> <!-- column 1 -->
 
 
@@ -121,6 +131,8 @@
               <tr>
                 <th class="col-sm-2">Started</th>
                 <th class="col-sm-2 text-right">Duration</th>
+                <th class="text-right">Units</th>
+                <th class="text-right">Income</th>
                 <th class="">Comments</th>
               </tr>
             </thead>
@@ -128,6 +140,8 @@
               <tr ng-repeat="(key, work) in summary.report.work">
                 <td><a href="#/timesheet/{{work.day}}">{{work.day | date:'dd MMM yy (EEE)'}}</a></td>
                 <td class="text-right">{{work.duration | time}}</td>
+                <td class="text-right">{{work.units}}</td>
+                <td class="text-right">{{work.income | currency}}</td>
                 <td class="text-pre-line">{{work.description}}</td>
               </tr>
             </tbody>
@@ -135,6 +149,8 @@
               <tr>
                 <td></td>
                 <td class="text-right">{{summary.report.duration | time}}</td>
+                <td class="text-right">{{summary.report.units}}</td>
+                <td class="text-right">{{summary.report.income | currency}}</td>
                 <td></td>
               </tr>
             </tfoot>

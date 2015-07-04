@@ -148,6 +148,12 @@ module.factory('Task', ['Keys', function(Keys) {
     // string: the project this task is part of
     this.projectName = json.projectName || '';
 
+    // number: rate per hour
+    this.rateHour = parseFloat(json.rateHour) || 0.0;
+
+    // number: rate per unit
+    this.rateUnit = parseFloat(json.rateUnit) || 0.0;
+
     // date: deadline date of task, convert from date string to date object
     if (json.deadline) {
       this.deadline = new Date(json.deadline);
@@ -363,6 +369,9 @@ module.factory('Work', ['Keys', function(Keys) {
 
     // number: the task this work should be allocated to
     this.taskId = json.taskId || null;
+
+    // number: the number of units consumed
+    this.units = parseFloat(json.units) || 0.0;
   }
 
   // Return the constructor function
@@ -520,7 +529,7 @@ module.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, S
       return results;
     },
 
-    reportTask: function (taskId, start, end) {
+    reportTask: function (task, start, end) {
       function hash(o) {
         return o.day + o.taskId;
       }
@@ -530,6 +539,8 @@ module.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, S
 
       report.work = {};
       report.duration = 0;
+      report.units = 0;
+      report.income = 0.0;
 
       // loop through date range
       var cur = new Date(start);
@@ -538,11 +549,13 @@ module.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, S
         cur.setDate(cur.getDate() + 1);
         for (var i = 0; i < shift.work.length; i++) {
 
-          if (shift.work[i].taskId !== taskId) continue;
+          if (shift.work[i].taskId !== task.id) continue;
 
           var work = {};
           work.day = shift.id;
           work.duration = shift.work[i].duration;
+          work.units = shift.work[i].units;
+          work.income = work.duration / 3600000 * task.rateHour + work.units * task.rateUnit;
           work.description = shift.work[i].description;
           work.taskId = shift.work[i].taskId;
 
@@ -550,6 +563,8 @@ module.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, S
 
           if (report.work[key]) {
             report.work[key].duration += work.duration;
+            report.work[key].units += work.units;
+            report.work[key].income += work.income;
             if (report.work[key].description.length === 0) {
               report.work[key].description = work.description;
             } else {
@@ -559,7 +574,9 @@ module.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, S
             report.work[key] = work;
           }
 
-          report.duration += shift.work[i].duration;
+          report.duration += work.duration;
+          report.units += work.units;
+          report.income += work.income;
         }
       }
       return report;
@@ -588,6 +605,8 @@ module.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, S
 
           value.day = shift.id;
           value.duration = shift.work[i].duration;
+          value.units = shift.work[i].units;
+          value.income = 0.0;
           value.description = shift.work[i].description;
           value.taskId = shift.work[i].taskId;
 
@@ -595,6 +614,7 @@ module.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, S
           if (task) {
             value.taskName = task.name;
             value.projectName = task.projectName || null;
+            value.income = value.duration / 3600000 * task.rateHour + value.units * task.rateUnit;
           } else {
             value.taskName = 'No task';
             value.projectName = null;
@@ -604,6 +624,8 @@ module.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, S
           if (!report[value.projectName]) {
             report[value.projectName] = {};
             report[value.projectName].duration = 0;
+            report[value.projectName].units = 0;
+            report[value.projectName].income = 0.0;
             report[value.projectName].work = {};
           }
 
@@ -612,6 +634,8 @@ module.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, S
           // Prime up project name and grouping key
           if (report[value.projectName].work[key]) {
             report[value.projectName].work[key].duration += value.duration;
+            report[value.projectName].work[key].units += value.units;
+            report[value.projectName].work[key].income += value.income;
             if (report[value.projectName].work[key].description.length === 0) {
               report[value.projectName].work[key].description = value.description;
             } else {
@@ -622,6 +646,8 @@ module.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, S
           }
 
           report[value.projectName].duration += value.duration;
+          report[value.projectName].units += value.units;
+          report[value.projectName].income += value.income;
 
         }
       }          

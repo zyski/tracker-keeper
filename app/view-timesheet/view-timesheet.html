@@ -59,6 +59,7 @@
             <tr class="">
               <th class="text-center">Started</th>
               <th class="text-center">Duration</th>
+              <th class="text-center" style="width: 5em;">Units</th>
               <th class="">Task</th>
               <th class="">Comments</th>
               <th class=""></th>
@@ -80,6 +81,9 @@
                 {{work.duration | time}}
                 <a class="" ng-click="addDuration(work)"><span class="glyphicon glyphicon-plus"></span></a>
               </button>
+            </td>
+            <td>
+              <input type="number" class="form-control text-center" ng-model="work.units">
             </td>
             <td style="">
                 <button type="button" class="btn btn-default btn-block btn-wrap" ng-click="findTaskId(work)">
@@ -105,7 +109,7 @@
             <td class="text-center">
               <label class="control-label">{{record.duration | time}}</label>
             </td>
-            <td colspan="2">
+            <td colspan="3">
                 <input type="text" class="form-control" ng-model="newWorkDesc" ng-keydown="addWork($event)" placeholder="" typeahead="task.name for task in findTaskName($viewValue) | limitTo:10" typeahead-on-select="selectedTask($item, $model, $label)" focus-on="newWorkDesc">
             </td>
             <td>
@@ -146,14 +150,18 @@
               <tr>
                 <th>Day</th>
                 <th class="text-right">Duration</th>
-                <th class="col-xs-4">Task Name</th>
-                <th class="col-xs-5">Comments</th>
+                <th class="text-right">Units</th>
+                <th class="text-right">Income</th>
+                <th class="col-xs-3">Task Name</th>
+                <th class="col-xs-4">Comments</th>
               </tr>
             </thead>
             <tbody>
               <tr ng-repeat="(key, value) in data.work">
                 <td><a href="" ng-href="#/timesheet/{{value.day}}">{{value.day | date:'dd MMM yy (EEE)'}}</a></td>
                 <td class="text-right">{{value.duration | time}}</td>
+                <td class="text-right">{{value.units}}</td>
+                <td class="text-right">{{value.income | currency}}</td>
                 <td><a href="" ng-href="#/task/{{value.taskId}}">{{value.taskName}}</a></td>
                 <td class="text-pre-line">{{value.description}}</td>
               </tr>
@@ -162,6 +170,8 @@
               <tr>
                 <td></td>
                 <td class="text-right">{{data.duration | time}}</td>
+                <td class="text-right">{{data.units}}</td>
+                <td class="text-right">{{data.income | currency}}</td>
                 <td></td>
                 <td></td>
               </tr>

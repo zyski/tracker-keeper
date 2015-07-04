@@ -137,7 +137,7 @@ angular.module('myApp.view-task', ['ngRoute', 'angularModalService'])
         break;
     };
     
-    $scope.summary.report = ShiftList.reportTask($scope.record.id, $scope.summary.start, $scope.summary.end);
+    $scope.summary.report = ShiftList.reportTask($scope.record, $scope.summary.start, $scope.summary.end);
   };
 
 
