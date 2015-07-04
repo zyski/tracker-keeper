@@ -7,6 +7,7 @@ angular.module('myApp', [
   'angularModalService',
   'myApp.view-task',
   'myApp.view-timesheet',
+  'myApp.view-admin',
   'myApp.version',
   'myApp.zyski'
 ])

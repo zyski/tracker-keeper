@@ -1,0 +1,44 @@
+<!-- Content -->
+<nav class="zg-page-header">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12 col-md-9">
+        <h1>Administration <small><a href="/"><span class="glyphicon glyphicon-home"></span></a></small></h1>
+        <ul class="list-inline">
+          <li><a href="#/timesheet">Timesheet</a></li>
+          <li><a href="#/task">Task</a></li>
+        </ul>
+      </div>
+    </div> <!-- column 2 -->
+  </div> <!-- row -->
+</nav>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12 col-md-9">
+
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="page-header">
+            <h1 class="" id="nav-summary">Backup Data</h1>
+          </div>
+          <div class="zg-toolbar">
+            <form class="form-inline" novalidate name="" role="form">
+              <div class="btn-group" role="group" aria-label="...">
+                <button type="button" class="btn btn-default" ng-click="backup()" disabled>Backup</button>
+                <button type="button" class="btn btn-default" ng-click="restore()" disabled>Restore</button>
+              </div>
+            </form>
+          </div> <!-- zg-toolbar -->
+
+          <pre>
+{{localData}}
+          </pre>
+
+        </div> <!-- column -->
+      </div> <!-- row -->
+
+    </div> <!-- column -->
+  </div> <!-- row -->
+</div> <!-- container -->
