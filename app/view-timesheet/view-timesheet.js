@@ -206,6 +206,12 @@ module.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$routePa
         $scope.summary.end = new Date($scope.dt);
         break;
 
+      case 5:
+        // Last 365 days
+        $scope.summary.start = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), $scope.dt.getDate() - 364);
+        $scope.summary.end = new Date($scope.dt);
+        break;
+
       case 0:
       default:
         // today
@@ -268,7 +274,7 @@ module.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$routePa
     $scope.newWorkTaskId = null;
 
     $scope.summary = {};
-    $scope.summary.types = ['Today', 'This Week', 'This Month', 'Last 7 days', 'Last 20 days'];
+    $scope.summary.types = ['Today', 'This Week', 'This Month', 'Last 7 days', 'Last 20 days', 'Last 365 days'];
     $scope.summary.typeName = $scope.summary.types[$scope.settings.summary.type];
     $scope.summary.report = {};
     $scope.summary.start = {};
