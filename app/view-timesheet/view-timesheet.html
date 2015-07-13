@@ -145,6 +145,29 @@
             </form>
           </div> <!-- zg-toolbar -->
 
+          <h2>Grand Total</h2>
+          <div class="row">
+            <div class="col-xs-8 col-sm-6 col-md-5 col-lg-4">
+              <table class="table table-condensed">
+                <tbody>
+                  <tr>
+                    <th>Duration</th>
+                    <td class="text-right">{{summary.total.duration | time}}</td>
+                  </tr>
+                  <tr>
+                    <th>Units</th>
+                    <td class="text-right">{{summary.total.units}}</td>
+                  </tr>
+                  <tr>
+                    <th>Income</th>
+                    <td class="text-right">{{summary.total.income | currency}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+
           <h2 ng-repeat-start="(project, data) in summary.report | orderBy:project">{{project}}</h2>
           <table class="table table-condensed" ng-repeat-end>
             <thead>

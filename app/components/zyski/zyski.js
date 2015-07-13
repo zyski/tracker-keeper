@@ -648,9 +648,9 @@ module.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, S
           report[value.projectName].duration += value.duration;
           report[value.projectName].units += value.units;
           report[value.projectName].income += value.income;
-
         }
-      }          
+      }
+
       return report;
     },
 

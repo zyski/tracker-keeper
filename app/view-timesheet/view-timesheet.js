@@ -201,12 +201,18 @@ module.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$routePa
         break;
 
       case 4:
+        // Last fourteen days
+        $scope.summary.start = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), $scope.dt.getDate() - 13);
+        $scope.summary.end = new Date($scope.dt);
+        break;
+
+      case 5:
         // Last twenty days
         $scope.summary.start = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), $scope.dt.getDate() - 19);
         $scope.summary.end = new Date($scope.dt);
         break;
 
-      case 5:
+      case 6:
         // Last 365 days
         $scope.summary.start = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), $scope.dt.getDate() - 364);
         $scope.summary.end = new Date($scope.dt);
@@ -221,6 +227,15 @@ module.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$routePa
     };
     
     $scope.summary.report = ShiftList.reportProject($scope.summary.start, $scope.summary.end);
+
+    // Generate an overall summary
+    $scope.summary.total = { duration: 0.0, units: 0.0, income: 0.0 };
+    for (var id in $scope.summary.report) {
+      $scope.summary.total.duration += $scope.summary.report[id].duration;
+      $scope.summary.total.units += $scope.summary.report[id].units;
+      $scope.summary.total.income += $scope.summary.report[id].income;
+    }
+
   };
 
 
@@ -274,9 +289,10 @@ module.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$routePa
     $scope.newWorkTaskId = null;
 
     $scope.summary = {};
-    $scope.summary.types = ['Today', 'This Week', 'This Month', 'Last 7 days', 'Last 20 days', 'Last 365 days'];
+    $scope.summary.types = ['Today', 'This Week', 'This Month', 'Last 7 days', 'Last 14 days', 'Last 20 days', 'Last 365 days'];
     $scope.summary.typeName = $scope.summary.types[$scope.settings.summary.type];
     $scope.summary.report = {};
+    $scope.summary.total = {};
     $scope.summary.start = {};
     $scope.summary.end = {};
 
