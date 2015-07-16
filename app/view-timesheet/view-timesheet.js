@@ -229,11 +229,19 @@ module.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$routePa
     $scope.summary.report = ShiftList.reportProject($scope.summary.start, $scope.summary.end);
 
     // Generate an overall summary
-    $scope.summary.total = { duration: 0.0, units: 0.0, income: 0.0 };
+    $scope.summary.total = {};
+    $scope.summary.total.projects = { duration: 0.0, units: 0.0, income: 0.0 };
+    $scope.summary.total.other = { duration: 0.0, units: 0.0, income: 0.0 };
     for (var id in $scope.summary.report) {
-      $scope.summary.total.duration += $scope.summary.report[id].duration;
-      $scope.summary.total.units += $scope.summary.report[id].units;
-      $scope.summary.total.income += $scope.summary.report[id].income;
+      if (id === 'null') {
+        $scope.summary.total.other.duration += $scope.summary.report[id].duration;
+        $scope.summary.total.other.units += $scope.summary.report[id].units;
+        $scope.summary.total.other.income += $scope.summary.report[id].income;
+      } else {
+        $scope.summary.total.projects.duration += $scope.summary.report[id].duration;
+        $scope.summary.total.projects.units += $scope.summary.report[id].units;
+        $scope.summary.total.projects.income += $scope.summary.report[id].income;
+      }
     }
 
   };

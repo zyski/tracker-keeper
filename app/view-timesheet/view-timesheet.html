@@ -149,18 +149,24 @@
           <div class="row">
             <div class="col-xs-8 col-sm-6 col-md-5 col-lg-4">
               <table class="table table-condensed">
+                <thead>
+                  <tr><th></th><th class="text-right">Projects</th><th class="text-right">Other</th></tr>
+                </thead>
                 <tbody>
                   <tr>
                     <th>Duration</th>
-                    <td class="text-right">{{summary.total.duration | time}}</td>
+                    <td class="text-right">{{summary.total.projects.duration | time}}</td>
+                    <td class="text-right">{{summary.total.other.duration | time}}</td>
                   </tr>
                   <tr>
                     <th>Units</th>
-                    <td class="text-right">{{summary.total.units}}</td>
+                    <td class="text-right">{{summary.total.projects.units}}</td>
+                    <td class="text-right">{{summary.total.other.units}}</td>
                   </tr>
                   <tr>
                     <th>Income</th>
-                    <td class="text-right">{{summary.total.income | currency}}</td>
+                    <td class="text-right">{{summary.total.projects.income | currency}}</td>
+                    <td class="text-right">{{summary.total.other.income | currency}}</td>
                   </tr>
                 </tbody>
               </table>
@@ -168,7 +174,7 @@
           </div>
 
 
-          <h2 ng-repeat-start="(project, data) in summary.report | orderBy:project">Project {{project}}</h2>
+          <h2 ng-repeat-start="(project, data) in summary.report | orderBy:project">{{project}}</h2>
           <table class="table table-condensed" ng-repeat-end>
             <thead>
               <tr>
