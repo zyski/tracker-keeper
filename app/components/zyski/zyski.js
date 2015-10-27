@@ -403,8 +403,8 @@ module.factory('Shift', ['$filter', 'Keys', 'Work', function($filter, Keys, Work
         var previous = this.work[l - 1];
         if (previous.duration === 0) {
           previous.duration = Date.now() - previous.started.getTime();
-          // Max of 12 hours
-          previous.duration = Math.min(previous.duration, 43200000);
+          // Max of 3 hours
+          previous.duration = Math.min(previous.duration, 10800000);
           // Must be positive
           previous.duration = Math.max(previous.duration, 0);
         }
