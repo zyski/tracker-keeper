@@ -113,13 +113,13 @@ angular.module('myApp.view-task', ['ngRoute', 'angularModalService'])
 
       case 3:
         // this FY
-        $scope.summary.start = new Date(now.getMonth() < 7 ? now.getFullYear() - 1 : now.getFullYear(), 6, 1);
+        $scope.summary.start = new Date(now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear(), 6, 1);
         $scope.summary.end = new Date(now);
         break;
 
       case 4:
         // last FY
-        $scope.summary.start = new Date(now.getMonth() < 7 ? now.getFullYear() - 2 : now.getFullYear() - 1, 6, 1);
+        $scope.summary.start = new Date(now.getMonth() < 6 ? now.getFullYear() - 2 : now.getFullYear() - 1, 6, 1);
         $scope.summary.end = new Date($scope.summary.start.getFullYear() + 1, 5, 30);
         break;
 

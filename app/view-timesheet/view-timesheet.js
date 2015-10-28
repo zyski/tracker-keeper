@@ -195,24 +195,36 @@ module.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$routePa
         break;
 
       case 3:
+        // this FY
+        $scope.summary.start = new Date($scope.dt.getMonth() < 6 ? $scope.dt.getFullYear() - 1 : $scope.dt.getFullYear(), 6, 1);
+        $scope.summary.end = new Date($scope.dt);
+        break;
+
+      case 4:
+        // last FY
+        $scope.summary.start = new Date($scope.dt.getMonth() < 6 ? $scope.dt.getFullYear() - 2 : $scope.dt.getFullYear() - 1, 6, 1);
+        $scope.summary.end = new Date($scope.summary.start.getFullYear() + 1, 5, 30);
+        break;
+
+      case 5:
         // Last seven days
         $scope.summary.start = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), $scope.dt.getDate() - 6);
         $scope.summary.end = new Date($scope.dt);
         break;
 
-      case 4:
+      case 6:
         // Last fourteen days
         $scope.summary.start = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), $scope.dt.getDate() - 13);
         $scope.summary.end = new Date($scope.dt);
         break;
 
-      case 5:
+      case 7:
         // Last twenty days
         $scope.summary.start = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), $scope.dt.getDate() - 19);
         $scope.summary.end = new Date($scope.dt);
         break;
 
-      case 6:
+      case 8:
         // Last 365 days
         $scope.summary.start = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), $scope.dt.getDate() - 364);
         $scope.summary.end = new Date($scope.dt);
@@ -297,7 +309,7 @@ module.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$routePa
     $scope.newWorkTaskId = null;
 
     $scope.summary = {};
-    $scope.summary.types = ['Today', 'This Week', 'This Month', 'Last 7 days', 'Last 14 days', 'Last 20 days', 'Last 365 days'];
+    $scope.summary.types = ['Today', 'This Week', 'This Month', 'This FY', 'Last FY', 'Last 7 days', 'Last 14 days', 'Last 20 days', 'Last 365 days'];
     $scope.summary.typeName = $scope.summary.types[$scope.settings.summary.type];
     $scope.summary.report = {};
     $scope.summary.total = {};
