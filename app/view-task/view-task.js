@@ -112,24 +112,36 @@ angular.module('myApp.view-task', ['ngRoute', 'angularModalService'])
         break;
 
       case 3:
+        // this FY
+        $scope.summary.start = new Date(now.getMonth() < 7 ? now.getFullYear() - 1 : now.getFullYear(), 6, 1);
+        $scope.summary.end = new Date(now);
+        break;
+
+      case 4:
+        // last FY
+        $scope.summary.start = new Date(now.getMonth() < 7 ? now.getFullYear() - 2 : now.getFullYear() - 1, 6, 1);
+        $scope.summary.end = new Date($scope.summary.start.getFullYear() + 1, 5, 30);
+        break;
+
+      case 5:
         // Last seven days
         $scope.summary.start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
         $scope.summary.end = new Date(now);
         break;
 
-      case 4:
+      case 6:
         // Last fourteen days
         $scope.summary.start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 13);
         $scope.summary.end = new Date(now);
         break;
 
-      case 5:
+      case 7:
         // Last twenty days
         $scope.summary.start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 19);
         $scope.summary.end = new Date(now);
         break;
 
-      case 6:
+      case 8:
         // Last 365 days
         $scope.summary.start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 364);
         $scope.summary.end = new Date(now);
@@ -163,7 +175,7 @@ angular.module('myApp.view-task', ['ngRoute', 'angularModalService'])
     }
 
     $scope.summary = {};
-    $scope.summary.types = ['Today', 'This Week', 'This Month', 'Last 7 days', 'Last 14 days', 'Last 20 days', 'Last 365 days'];
+    $scope.summary.types = ['Today', 'This Week', 'This Month', 'This FY', 'Last FY', 'Last 7 days', 'Last 14 days', 'Last 20 days', 'Last 365 days'];
     $scope.summary.typeName = $scope.summary.types[$scope.settings.summary.type];
     $scope.summary.report = {};
     $scope.summary.start = {};
