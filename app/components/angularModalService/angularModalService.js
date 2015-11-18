@@ -8,9 +8,9 @@
 
   'use strict';
 
-  var module = angular.module('angularModalService', []);
+  var myModule = angular.module('angularModalService', []);
 
-  module.factory('ModalService', ['$document', '$compile', '$controller', '$http', '$rootScope', '$q', '$timeout', '$templateCache',
+  myModule.factory('ModalService', ['$document', '$compile', '$controller', '$http', '$rootScope', '$q', '$timeout', '$templateCache',
     function($document, $compile, $controller, $http, $rootScope, $q, $timeout, $templateCache) {
 
     //  Get the body of the document, we'll add the modal to this.

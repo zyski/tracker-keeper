@@ -7,9 +7,9 @@ Date.prototype.toISODateString = function() {
    return yyyy + '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]); // padding
 };
 
-var module = angular.module('myApp.zyski', []);
+var myModule = angular.module('myApp.zyski', []);
 
-module.filter('time', [function() {
+myModule.filter('time', [function() {
   return function(ms, units) {
 
     if (units === 'minutes') {
@@ -32,7 +32,7 @@ module.filter('time', [function() {
 }]);
 
 
-module.filter('taskName', ['TaskList', function(TaskList) {
+myModule.filter('taskName', ['TaskList', function(TaskList) {
   return function(taskId) {
     var task = TaskList.findId(taskId);
     if (task) {
@@ -44,7 +44,7 @@ module.filter('taskName', ['TaskList', function(TaskList) {
 }]);
 
 
-module.filter('dueInDays', [function() {
+myModule.filter('dueInDays', [function() {
   //todo: convert into work days
   return function(due) {
     if (due) {
@@ -59,7 +59,7 @@ module.filter('dueInDays', [function() {
   * Hold all object keys
   * NB: A key should never start at zero (due to being a falsey)! 
   */
-module.factory('Keys', [function() {
+myModule.factory('Keys', [function() {
 
   // Private Properties 
   var keys = {};
@@ -101,7 +101,7 @@ module.factory('Keys', [function() {
 /**
   * Task
   */
-module.factory('Task', ['Keys', function(Keys) {
+myModule.factory('Task', ['Keys', function(Keys) {
 
   // Private Properties 
   var futureDate = Date.now() + 86400000 * 365 * 10;
@@ -177,7 +177,7 @@ module.factory('Task', ['Keys', function(Keys) {
 }]);
 
 
-module.factory('TaskList', ['$filter', 'Task', function($filter, Task) {
+myModule.factory('TaskList', ['$filter', 'Task', function($filter, Task) {
 
   // Private Properties 
   var tasksCache = {};
@@ -333,7 +333,7 @@ module.factory('TaskList', ['$filter', 'Task', function($filter, Task) {
   * Hold a single piece of work performed
   * Each piece of work will have a time resolution down to ms
   */
-module.factory('Work', ['Keys', function(Keys) {
+myModule.factory('Work', ['Keys', function(Keys) {
 
   // Private Properties 
 
@@ -386,7 +386,7 @@ module.factory('Work', ['Keys', function(Keys) {
   * A shift worth of work, with no gaps in time between work i.e.
   * work[0].finished === work[1].started 
   */
-module.factory('Shift', ['$filter', 'Keys', 'Work', function($filter, Keys, Work) {
+myModule.factory('Shift', ['$filter', 'Keys', 'Work', function($filter, Keys, Work) {
 
   // Prototype
   Shift.prototype = {
@@ -506,7 +506,7 @@ module.factory('Shift', ['$filter', 'Keys', 'Work', function($filter, Keys, Work
 /**
   * Hold a set of Shifts
   */
-module.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, Shift, TaskList) {
+myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, Shift, TaskList) {
 
   // Private Properties 
   
@@ -740,7 +740,7 @@ module.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, S
   * Allows a element to grab focus based on a particular event
   */
 
-module.directive('focusOn', [function() {
+myModule.directive('focusOn', [function() {
     return function (scope, elem, attr) {
       scope.$on('focusOn', function(e, name) {
         if (name === attr.focusOn) {
@@ -750,7 +750,7 @@ module.directive('focusOn', [function() {
     }
 }]);
 
-module.factory('focus', ['$rootScope', '$timeout', function($rootScope, $timeout) {
+myModule.factory('focus', ['$rootScope', '$timeout', function($rootScope, $timeout) {
     return function (name) {
       $timeout(function () {
         $rootScope.$broadcast('focusOn', name);
@@ -764,7 +764,7 @@ module.factory('focus', ['$rootScope', '$timeout', function($rootScope, $timeout
  * use on an input field, on focus it will display model, on blur display using filter. 
  *
  */
-module.directive('zgViewas', ['$filter', '$locale', function ($filter, $locale) {
+myModule.directive('zgViewas', ['$filter', '$locale', function ($filter, $locale) {
     return {
       priority: 1,
       require: '?ngModel',
@@ -831,7 +831,7 @@ module.directive('zgViewas', ['$filter', '$locale', function ($filter, $locale) 
  *
  */
  
-module.filter('zgPager', [function() {
+myModule.filter('zgPager', [function() {
     return function(array, pager) {
       return pager.filter(array);
     }
@@ -849,7 +849,7 @@ module.filter('zgPager', [function() {
   * - ui uses the pager service to know what to display
   *
   */
-module.factory('zgPager', ['Keys', function(Keys) {
+myModule.factory('zgPager', ['Keys', function(Keys) {
 
   // Private Properties 
 
@@ -931,7 +931,7 @@ module.factory('zgPager', ['Keys', function(Keys) {
 /**
   * Controller   findTaskIdCtrl
   */
-module.controller('findTaskIdCtrl', ['$scope', '$document', 'TaskList', 'currentId', 'close', 'zgPager', 'focus',
+myModule.controller('findTaskIdCtrl', ['$scope', '$document', 'TaskList', 'currentId', 'close', 'zgPager', 'focus',
 	function ($scope, $document, TaskList, currentId, close, zgPager, focus) {
 
     // Set a body class for bootstrap modal
@@ -986,7 +986,7 @@ module.controller('findTaskIdCtrl', ['$scope', '$document', 'TaskList', 'current
 /**
   * Controller   editTextCtrl
   */
-module.controller('editTextCtrl', ['$scope', '$document', 'title', 'text', 'close', 'focus',
+myModule.controller('editTextCtrl', ['$scope', '$document', 'title', 'text', 'close', 'focus',
 	function ($scope, $document, title, text, close, focus) {
     
     // Set a body class for bootstrap modal

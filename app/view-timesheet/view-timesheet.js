@@ -1,15 +1,15 @@
 'use strict';
 
-var module = angular.module('myApp.view-timesheet', [])
+var myModule = angular.module('myApp.view-timesheet', [])
 
-module.config(['$routeProvider', function($routeProvider) {
+myModule.config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/timesheet/:timesheetId?', {
     templateUrl: 'view-timesheet/view-timesheet.html',
     controller: 'viewTimesheetCtrl'
   });
 }]);
 
-module.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$routeParams', '$location', '$document', 'ModalService', 'ShiftList', 'TaskList', 'focus', 
+myModule.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$routeParams', '$location', '$document', 'ModalService', 'ShiftList', 'TaskList', 'focus', 
   function($scope, $filter, $route, $routeParams, $location, $document, ModalService, ShiftList, TaskList, focus) {
 
   $scope.saveRecord = function () {
