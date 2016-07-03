@@ -211,7 +211,7 @@ myModule.factory('TaskList', ['$filter', 'Task', function($filter, Task) {
       text = (''+text).toLowerCase();
 
       for (var id in tasksCache) {
-        if ((tasksCache[id].name).toLowerCase().indexOf(text) > -1) {
+        if (tasksCache[id].completed === false && (tasksCache[id].name).toLowerCase().indexOf(text) > -1) {
           results.push(tasksCache[id]);
         }
       }
