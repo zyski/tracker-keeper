@@ -12,7 +12,12 @@ angular.module('myApp', [
   'myApp.zyski'
 ])
 
-.config(['$routeProvider', function($routeProvider) {
+
+.config(['$compileProvider', '$routeProvider', function($compileProvider, $routeProvider) {
+
+  // Make blob objects safe.
+  $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|blob):/);
+
   $routeProvider.otherwise({redirectTo: '/timesheet'});
 }]);
 
