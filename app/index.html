@@ -25,15 +25,6 @@
 
   <div ng-view></div>
 
-  <nav class="zg-page-header">
-    <div class="container">
-      <ul class="list-inline">
-        <li>Angular seed app: v<span app-version></span></li>
-      </ul>
-    </div>
-  </nav>
-
-
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
   -->
@@ -41,13 +32,16 @@
   <script src="bower_components/angular-route/angular-route.js"></script>
   <script src="components/ui-bootstrap/ui-bootstrap-tpls-0.13.0.js"></script>
   <script src="components/angularModalService/angularModalService.js"></script>
+
+  <script src="components/crossfilter/crossfilter.js"></script>
+  <script src="components/highcharts/highcharts.js"></script>
+  <script src="components/angular-hc/angular-hc.js"></script>
   <script src="components/zyski/zyski.js"></script>
-  <script src="components/version/version.js"></script>
-  <script src="components/version/version-directive.js"></script>
-  <script src="components/version/interpolate-filter.js"></script>
+
   <script src="app.js"></script>
   <script src="view-task/view-task.js"></script>
   <script src="view-timesheet/view-timesheet.js"></script>
+  <script src="view-report/view-report.js"></script>
   <script src="view-admin/view-admin.js"></script>
 </body>
 </html>

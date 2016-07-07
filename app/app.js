@@ -5,10 +5,11 @@ angular.module('myApp', [
   'ngRoute',
   'ui.bootstrap',
   'angularModalService',
+  'angular-hc',
   'myApp.view-task',
   'myApp.view-timesheet',
+  'myApp.view-report',
   'myApp.view-admin',
-  'myApp.version',
   'myApp.zyski'
 ])
 

@@ -170,6 +170,14 @@ myModule.factory('Task', ['Keys', function(Keys) {
 
     // bool: has the task been completed?
     this.completed = json.completed || false;
+
+    // date: the last time task was billed
+    if (json.lastBill) {
+      this.lastBill = new Date(json.lastBill);
+    } else {
+      this.lastBill = null;
+    }
+
   }
 
   // Return the constructor function
@@ -345,33 +353,55 @@ myModule.factory('Work', ['Keys', function(Keys) {
     get finished () {
       return new Date(this.started.getTime() + this.duration);
     },
+
+    get income () {
+      return this.duration / 3600000 * this.rateHour + this.units * this.rateUnit;
+    },
+
+    get incomeHour () {
+      return this.duration / 3600000 * this.rateHour;
+    },
+
+    get incomeUnit () {
+      return this.units * this.rateUnit;
+    },
+
   }
 
   // Constructor
-  function Work (json) {
-    if (!json) json = {};
+  function Work (config) {
+    if (!config) config = {};
 
     // number: unique identifier
-    this.id = json.id || Keys.next('Work');
+    this.id = config.id || Keys.next('Work');
 
     // date: when did the work start
-    if (json.started) {
-      this.started = new Date(json.started);
+    if (config.started) {
+      this.started = new Date(config.started);
     } else {
       this.started = new Date();
     }
 
     // string: the free form description of the work performed
-    this.description = json.description || '';
+    this.description = config.description || '';
 
     // number: how long the work last, in milliseconds
-    this.duration = json.duration || 0;
+    this.duration = config.duration || 0;
 
     // number: the task this work should be allocated to
-    this.taskId = json.taskId || null;
+    this.taskId = config.taskId || null;
 
     // number: the number of units consumed
-    this.units = parseFloat(json.units) || 0.0;
+    this.units = parseFloat(config.units) || 0.0;
+
+    // number: the rate per hour, normally from Task
+    this.rateHour = parseFloat(config.rateHour) || 0.0;
+
+    // number: the rate per unit, normally from Task
+    this.rateUnit = parseFloat(config.rateUnit) || 0.0;
+
+    // string: the project name, normally from Task
+    this.projectName = config.projectName || '';
   }
 
   // Return the constructor function
@@ -528,6 +558,18 @@ myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter,
       }
       return results;
     },
+
+    // Each work item per shift
+    get work () {
+      var results = [];
+      for (var id in shiftsCache) {
+        shiftsCache[id].work.forEach(function(x, i, a) {
+          results.push(x);
+        });
+      }
+      return results;
+    },
+
 
     reportTask: function (task, start, end) {
       function hash(o) {

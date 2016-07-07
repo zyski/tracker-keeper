@@ -139,3 +139,10 @@ input::-webkit-inner-spin-button {
   border-top: 0;
 }
 
+
+hc-chart {
+  position: relative;
+  display: block;
+  height: 300px;
+}
+
