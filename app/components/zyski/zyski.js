@@ -257,6 +257,19 @@ myModule.factory('TaskList', ['$filter', 'Task', function($filter, Task) {
       return results;
     },
 
+    // Finds a task and copies key members to a destination object
+    // or if not specified a new object containing the relevant members.
+    copyBilling: function (taskId, dest) {
+      var task = this.findId(taskId),
+          obj  = dest || {};
+      if (task) {
+        obj.rateHour    = task.rateHour;
+        obj.rateUnit    = task.rateUnit;
+        obj.projectName = task.projectName;
+      }
+      return obj;
+    },
+
     // create a new task, note the negative id to trigger key generation on save
     create: function () {
       return new Task({id: -1});

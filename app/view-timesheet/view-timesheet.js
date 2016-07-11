@@ -104,23 +104,15 @@ myModule.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$route
     var pattern = new RegExp('^' + $scope.newWorkTaskText + ' *');
     $scope.newWorkDesc = $scope.newWorkDesc.replace(pattern, '');
 
-    // Get task particulars
-    var selTask = TaskList.findId($scope.newWorkTaskId);
-
-    if (selTask) {
-      $scope.record.addWork({
+    var newWork = {
         description: $scope.newWorkDesc,
         taskId: $scope.newWorkTaskId,
-        rateHour: selTask.rateHour,
-        rateUnit: selTask.rateUnit,
-        projectName: selTask.projectName
-      });
-    } else {
-      $scope.record.addWork({
-        description: $scope.newWorkDesc,
-        taskId: $scope.newWorkTaskId
-      });
-    }
+    };
+
+    // Populate some task particulars to the work entry
+    TaskList.copyBilling($scope.newWorkTaskId, newWork);
+
+    $scope.record.addWork(newWork);
 
     $scope.newWorkDesc = '';
     $scope.newWorkTaskText = '';
@@ -151,14 +143,8 @@ myModule.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$route
       modal.close.then(function(result) {
         if (result !== undefined) {
           work.taskId = result;
-
-          // Populate task particulars
-          var selTask = TaskList.findId(work.taskId);
-          if (selTask) {
-            work.rateHour = selTask.rateHour;
-            work.rateUnit = selTask.rateUnit;
-            work.projectName = selTask.projectName;
-          }
+          // Populate some task particulars to the work entry
+          TaskList.copyBilling(work.taskId, work);
         }
       });
     });

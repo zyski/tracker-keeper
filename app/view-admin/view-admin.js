@@ -39,19 +39,6 @@ angular.module('myApp.view-admin', ['ngRoute', 'angularModalService'])
     }
   }
 
-  // todo: move this to TaskList
-  function copyBilling (taskId, work) {
-    var task = TaskList.findId(taskId),
-        obj  = work || {};
-    if (task) {
-      obj.taskId      = task.id;
-      obj.rateHour    = task.rateHour;
-      obj.rateUnit    = task.rateHour;
-      obj.projectName = task.projectName;
-    }
-    return obj;
-  }
-
   $scope.recalcWork = function () {
     var task,
         time = Date.now();
@@ -61,7 +48,7 @@ angular.module('myApp.view-admin', ['ngRoute', 'angularModalService'])
     // Update all work on all shifts
     ShiftList.shifts.forEach(function (sx, si, sa) {
       sx.work.forEach(function (wx, wi, wa) {
-        copyBilling(wx.taskId, wx);
+        TaskList.copyBilling(wx.taskId, wx);
       });
     });
 
