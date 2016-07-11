@@ -18,26 +18,43 @@
 
 <div class="container">
   <div class="row">
-    <div class="col-sm-12 col-md-9">
+    <div class="col-sm-12">
 
-      <div class="row">
-        <div class="col-sm-12">
-          <div class="page-header">
-            <h1 class="" id="nav-summary">Data</h1>
-          </div>
-          <div class="zg-toolbar">
-            <form class="form-inline" novalidate name="" role="form">
-              <div class="btn-group" role="group" aria-label="...">
-                <label class="btn btn-default btn-file">
-                    Import <input type="file" style="display: none;" onchange="angular.element(this).scope().fileNameChanged(this)">
-                </label>
-                <a class="btn btn-default" ng-href="{{downloadUrl}}" download="backup.json" role="button">Export</a>
+      <table class="table">
+        <thead>
+          <tr><th class="col-sm-2">Admin Tool</th><th class="col-sm-4">Use</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>Import</td>
+          <td><span><label class="btn btn-default">Open File... <input type="file" style="display: none;" onchange="angular.element(this).scope().fileNameChanged(this)"></label>&nbsp;&nbsp;{{importDataStatus}}</span></td>
+          <td>Import all data from a file into your browsers local storage for this site. Select a file and data will be imported immediately.</td>
+        </tr>
+        <tr>
+          <td>Export</td>
+          <td><a ng-href="{{downloadUrl}}" download="backup.json" role="button">Download data</a></td>
+          <td>Export all data from browser local storage to a file for later import. Clicking on the link will download the file immediately.</td>
+        </tr>
+        <tr>
+          <td>Re-calc Work</td>
+          <td>
+            <form>
+              <!-- todo: make the re-calc work from a specific date through to now
+              <div class="form-group">
+                <label for="recalcDate">From</label>
+                <input type="date" class="form-control" id="recalcDate" placeholder="From Date">
               </div>
+            -->
+              <span>
+                <button class="btn btn-default" ng-click="recalcWork()">Run</button>&nbsp;&nbsp;{{recalcWorkStatus}}
+              </span>
             </form>
-          </div> <!-- zg-toolbar -->
+          </td>
+          <td>Will read in all Work (time entries), lookup the assigned Task, then copy the Task's current Rate per Hour, Rate per Unit and Project Name values to the Work record. <strong>Careful, advise you backup your data first using the Export tool above.</strong></td>
+        </tr>
+        </tbody>
+      </table>
 
-        </div> <!-- column -->
-      </div> <!-- row -->
 
     </div> <!-- column -->
   </div> <!-- row -->
