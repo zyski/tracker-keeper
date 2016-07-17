@@ -146,3 +146,6 @@ hc-chart {
   height: 300px;
 }
 
+.hc-chart-sm {
+  height: 150px;
+}

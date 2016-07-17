@@ -577,7 +577,11 @@ myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter,
       var results = [];
       for (var id in shiftsCache) {
         shiftsCache[id].work.forEach(function(x, i, a) {
-          results.push(x);
+          if (x.taskId) {
+            var tmp = angular.copy(x);
+            tmp.taskRef = TaskList.findId(x.taskId);
+            results.push(tmp);
+          }
         });
       }
       return results;

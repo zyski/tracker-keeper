@@ -15,25 +15,175 @@
   </div> <!-- row -->
 </nav>
 
-
-<div class="container">
-  <div class="row">
-    <div class="col-md-12">
-      <hc-chart>
-        <hc-options ng-model="charts.day.init"></hc-options>
-        <hc-series ng-model="charts.day.series" hc-options="{ name: 'Hours'}"></hc-series>
-        <hc-select ng-model="charts.day.filter" Xng-change="filter('open', charts.day.filter)"></hc-select>
-      </hc-chart>
-    </div> <!-- column -->
-  </div> <!-- row -->
+<div class="container-fluid">
 
   <div class="row">
-    <div class="col-md-12">
-      <hc-chart>
-        <hc-options ng-model="charts.task.init"></hc-options>
-        <hc-series ng-model="charts.task.series" hc-options="{ name: 'Hours'}"></hc-series>
-        <hc-select ng-model="charts.task.filter" Xng-change="filter('open', charts.task.filter)"></hc-select>
-      </hc-chart>
-    </div> <!-- column -->
-  </div> <!-- row -->
+    <div class="col-sm-12 col-md-9">
+        <span>{{totIncome}}</span>
+        <div class="btn-group" role="group" aria-label="...">
+          <button type="button" class="btn btn-default">1wk</button>
+          <button type="button" class="btn btn-default">This FY</button>
+          <button type="button" class="btn btn-default">Last FY</button>
+        </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12 col-md-9">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <hc-chart class="hc-chart-sm">
+                <hc-options ng-model="charts.weekday.init"></hc-options>
+                <hc-series ng-model="charts.weekday.series" hc-options="{ name: 'Hours'}"></hc-series>
+                <hc-select ng-model="filters.weekday" ng-change="filter('weekday', filters.weekday)"></hc-select>
+              </hc-chart>
+            </div>
+          </div>
+        </div> <!-- column -->
+      </div>
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="col-sm-12 col-md-9">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <hc-chart>
+                <hc-options ng-model="charts.projIncome.init"></hc-options>
+                <hc-series ng-model="charts.projIncome.series" hc-options="{ name: 'Hours'}"></hc-series>
+                <hc-select ng-model="filters.project" ng-change="filter('project', filters.project)"></hc-select>
+              </hc-chart>
+            </div>
+          </div>
+        </div> <!-- column -->
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <hc-chart>
+                <hc-options ng-model="charts.taskIncome.init"></hc-options>
+                <hc-series ng-model="charts.taskIncome.series" hc-options="{ name: 'Hours'}"></hc-series>
+                <hc-select ng-model="filters.task" ng-change="filter('task', filters.task)"></hc-select>
+              </hc-chart>
+            </div>
+          </div>
+        </div> <!-- column -->
+      </div> <!-- row -->
+
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <hc-chart>
+                <hc-options ng-model="charts.week.init"></hc-options>
+                <hc-series ng-model="charts.week.series" hc-options="{ name: 'Hours', type: 'column', yAxis: 1}"></hc-series>
+                <hc-series ng-model="charts.week.seriesIn" hc-options="{ name: 'Income', type: 'line'}"></hc-series>
+                <hc-select ng-model="filters.week" ng-change="filter('week', filters.week)"></hc-select>
+              </hc-chart>
+            </div>
+          </div>
+        </div>
+      </div> <!-- row -->
+
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <hc-chart>
+                <hc-options ng-model="charts.projHours.init"></hc-options>
+                <hc-series ng-model="charts.projHours.series" hc-options="{ name: 'Hours'}"></hc-series>
+                <hc-select ng-model="filters.project" ng-change="filter('project', filters.project)"></hc-select>
+              </hc-chart>
+            </div>
+          </div>
+        </div> <!-- column -->
+
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <hc-chart>
+                <hc-options ng-model="charts.projUnits.init"></hc-options>
+                <hc-series ng-model="charts.projUnits.series" hc-options="{ name: 'Units'}"></hc-series>
+                <hc-select ng-model="filters.project" ng-change="filter('project', filters.project)"></hc-select>
+              </hc-chart>
+            </div>
+          </div>
+        </div> <!-- column -->
+      </div> <!-- row -->
+
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <hc-chart>
+                <hc-options ng-model="charts.taskHours.init"></hc-options>
+                <hc-series ng-model="charts.taskHours.series" hc-options="{ name: 'Hours'}"></hc-series>
+                <hc-select ng-model="filters.task" ng-change="filter('task', filters.task)"></hc-select>
+              </hc-chart>
+            </div>
+          </div>
+        </div> <!-- column -->
+
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <hc-chart>
+                <hc-options ng-model="charts.taskUnits.init"></hc-options>
+                <hc-series ng-model="charts.taskUnits.series" hc-options="{ name: 'Hours'}"></hc-series>
+                <hc-select ng-model="filters.task" ng-change="filter('task', filters.task)"></hc-select>
+              </hc-chart>
+            </div>
+          </div>
+        </div> <!-- column -->
+
+      </div> <!-- row -->
+
+
+    </div>
+
+    <div class="hidden-xs hidden-sm col-md-3">
+      <div class="list-group">
+        <a class="list-group-item" href="" ng-repeat="work in topWork">
+          {{work.started | date:'dd MMM yy (EEE)'}}
+        </a>
+      </div>
+
+      <!--
+      <div class="row">
+        <div class="col-md-12">
+          <table class="table">
+            <tr>
+              <th class="col-sm-2">Started</th>
+              <th class="text-right">Duration</th>
+              <th class="text-right">Units</th>
+              <th class="text-right">Income</th>
+              <th>Project Name</th>
+              <th>Task Name</th>
+              <th class="col-sm-4">Comments</th>
+            </tr>
+            <tr ng-repeat="work in topWork">
+              <td>{{work.started | date:'dd MMM yy (EEE)'}}</a></td>
+              <td class="text-right">{{work.duration | time}}</td>
+              <td class="text-right">{{work.units}}</td>
+              <td class="text-right">{{work.income | currency}}</td>
+              <td>{{work.projectName}}</td>
+              <td>{{work.taskRef.name}}</td>
+              <td class="text-pre-line">{{work.description}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    -->
+    </div>
+  </div>
+
+
 </div> <!-- container -->
