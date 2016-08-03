@@ -9,40 +9,162 @@ angular.module('myApp.view-report', ['ngRoute'])
   });
 }])
 
-.controller('viewRptCtrl', ['$scope', '$routeParams', '$location', 'ShiftList', 'TaskList', 'hcSeries',
-	function($scope, $routeParams, $location, ShiftList, TaskList, hcSeries) {
+.controller('viewRptCtrl', ['$scope', '$routeParams', '$location', 'cfWork', 'moment', 'hcSeries', 'TaskList',
+	function($scope, $routeParams, $location, cfWork, moment, hcSeries, TaskList) {
 
-  var cf,
-      dims = {},
-      groups = {},
-      filters = {},
-      weekdays = 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday'.split(',');
+  $scope.debug = function (value) {
+    console.debug('debug', value);
+  };
+
+  var dims, groups, weekdays = 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday'.split(',');
+
+
+  $scope.changeSort = function (predicate) {
+    $scope.sort.field = predicate;
+    $scope.sort.reverse = !$scope.sort.reverse;
+  };
+
+  // Builds an array of objects in form { key: '', value: [] }
+  function dayRanges () {
+    // todo: has to build the ranges relvative to a particular day
+    // e.g. you are looking at a particular day for a timesheet
+
+    var eod = moment().endOf('day').valueOf();
+
+    return [
+      {key: 'All', value: null},
+      {key: 'Today', value: [moment().startOf('day').valueOf(), eod]},
+      {key: 'This Week', value: [moment().startOf('week').valueOf(), moment().endOf('week').valueOf()]},
+      {key: 'This Month', value: [moment().startOf('month').valueOf(), moment().endOf('month').valueOf()]},
+      {key: 'This FY', value: [0,0]},
+      {key: 'Last FY', value: [0,0]},
+      {key: 'Last 7 days',   value: [moment().startOf('day').subtract(6, 'days').valueOf(), eod]},
+      {key: 'Last 14 days',  value: [moment().startOf('day').subtract(13, 'days').valueOf(), eod]},
+      {key: 'Last 20 days',  value: [moment().startOf('day').subtract(19, 'days').valueOf(), eod]},
+      {key: 'Last 365 days', value: [moment().startOf('day').subtract(364, 'days').valueOf(), eod]}
+    ];
+  };
+
+
+  // Helper function to find a value in an array
+  function lookup (key, array) {
+    let value = null;
+    array.some(function (x) {
+      if (x.key === key) {
+        value = x.value;
+        return true;  // break out
+      }
+    });
+    return value;
+  }
+
+
+  function hcMapFuncIn (x, i, a) {
+    if (angular.isString(x.key))
+      return {name: x.key, y: x.value.income};
+    else
+      return {x: x.key, y: x.value.income};
+  };
+
+  function hcMapFuncHr (x, i, a) {
+    if (angular.isString(x.key))
+      return {name: x.key, y: x.value.hours};
+    else
+      return {x: x.key, y: x.value.hours};
+  };
+
 
   // For each group rebuild the associated series
   $scope.rebuildSeries = function () {
-    $scope.charts.week.series = hcSeries.convert(groups.weekHours);
-    $scope.charts.week.seriesIn = hcSeries.convert(groups.weekIncome);
-    $scope.charts.weekday.series = hcSeries.convert(groups.weekday);
-    $scope.charts.taskHours.series = hcSeries.convert(groups.taskHours, 10);
-    $scope.charts.taskUnits.series = hcSeries.convert(groups.taskUnits, 10);
-    $scope.charts.taskIncome.series = hcSeries.convert(groups.taskIncome, 10);
-    $scope.charts.projHours.series = hcSeries.convert(groups.projHours);
-    $scope.charts.projUnits.series = hcSeries.convert(groups.projUnits);
-    $scope.charts.projIncome.series = hcSeries.convert(groups.projIncome);
+    $scope.charts.week.seriesIn = hcSeries.convert(groups.week, null, hcMapFuncIn);
+    $scope.charts.week.seriesHr = hcSeries.convert(groups.week, null, hcMapFuncHr);
+  };
 
-    // List some detailed data
-    $scope.topWork = dims.week.top(20);
-    $scope.totIncome = groups.projIncome.all().reduce(function (x, y) {
-      return x + y.value;
-    }, 0);
+
+  $scope.rebuildTasks = function () {
+    $scope.filterTask(null);
+
+    // Populate Task array and create a grand total
+    $scope.tasks = [];
+    $scope.taskTotals = { hours: 0.0, units: 0.0, income: 0.0 };
+    groups.task.all().forEach(function (x, i, a) {
+      $scope.tasks.push({
+        name: x.key, 
+        hours: x.value.hours,
+        units: x.value.units,
+        income: x.value.income
+      });
+      $scope.taskTotals.hours += x.value.hours;
+      $scope.taskTotals.units += x.value.units;
+      $scope.taskTotals.income += x.value.income;
+    });
+  };
+
+  $scope.rebuildAll = function () {
+    $scope.rebuildSeries();
+    $scope.rebuildTasks();
   };
 
 
   // Filters
+  $scope.filterProject = function () {
+    // Adjust filters
+    dims.project.filter(lookup($scope.filters.project, $scope.selects.projects));
+
+    // Rebuild scope variables
+    $scope.rebuildAll();    
+  };
+
+
+  // todo: this need to rebuild the crossfilter to re-query
+  // work from the period selected. This will cut down the 
+  // data substantially.
+  $scope.filterDay = function () {
+    console.debug('view-report => filterDay');
+    console.debug(Date.now());
+
+    // Re-create the crossfilter
+    let range = lookup($scope.filters.day, $scope.selects.dates) || [0, Date.now()];
+    let cf = cfWork.create(range);
+    dims = cf.dims;
+    groups = cf.groups;
+
+    console.debug(Date.now());
+
+    // Rebuild scope variables
+    $scope.rebuildAll();
+
+    console.debug(Date.now());
+  };
+
+
+  $scope.filterBilled = function () {
+    // Adjust filters
+    dims.billed.filter(lookup($scope.filters.billed, $scope.selects.billed));
+
+    // Rebuild scope variables
+    $scope.rebuildAll();    
+  };
+
+
+  $scope.filterTask = function (value) {
+      // Is filter already active? If so, cancel it
+    if (value == null || $scope.filters.task == value) {
+      $scope.filters.task = null;
+      dims.task.filter(null);
+      $scope.topWork = null;
+    } else {
+      $scope.filters.task = value;
+      dims.task.filter(value);
+      $scope.topWork = dims.day.top(Infinity);
+    }
+
+    // Rebuild series only - tasks won't change
+    $scope.rebuildSeries();
+  };
+
+
   $scope.filter = function (dim, select) {
-
-    console.log('filter', dim, select);
-
     if (!select) {
       dims[dim].filterAll();
     } else if (angular.isArray(select)) {
@@ -57,82 +179,36 @@ angular.module('myApp.view-report', ['ngRoute'])
     }
 
     // Trigger charts to redraw
-    $scope.rebuildSeries();
+    $scope.rebuildAll();
   }
 
 
   $scope.init = function () {
-    // Create a crossfilter
-    cf = crossfilter(ShiftList.work);
+    console.debug('view-report => init()');
+    console.debug(Date.now());
 
+    $scope.sort = {};
+    $scope.sort.field = 'name';
+    $scope.sort.reverse = false;
 
-    // Dimensions 
+    $scope.selects = {},
+    $scope.selects.projects = TaskList.projects.map(function (x) {
+      return {key: x, value: x};
+    });
+    $scope.selects.projects.unshift({key: 'All', value: null});
+    $scope.selects.dates = dayRanges();
+    $scope.selects.billed = [
+      {key: 'All', value: null},
+      {key: 'Billed', value: true},
+      {key: 'Unbilled', value: false}
+    ];
+
+    $scope.filters = {};
+    $scope.filters.project = 'All';
+    $scope.filters.day = 'Last 20 days';
+    $scope.filters.billed = 'All';
+
     //
-    dims.week = cf.dimension(function(d) {
-      // Make the start of the week Monday
-      var dt = new Date(d.started);
-      dt.setHours(0,0,0,0);
-
-      var day = dt.getDay() || 7;
-      
-      if (day == 1)
-        return dt.getTime();
-      else
-        return dt.setHours(-24 * (day - 1),0,0,0);
-    });
-
-
-    dims.weekday = cf.dimension(function(d) {
-      var dt = new Date(d.started);
-      return dt.getDay();
-    });
-
-
-    dims.project = cf.dimension(function(d) {return d.projectName || 'No Project'; });
-    dims.task = cf.dimension(function(d) {
-      return d.taskRef.name;
-    });
-
-
-    // Groups
-    //
-    groups.weekHours = dims.week.group().reduceSum(function(d) {
-      return (d.duration / 3600000).toFixed(2);
-    });
-
-    groups.weekIncome = dims.week.group().reduceSum(function(d) {
-      return d.income;
-    });
-
-    groups.weekday = dims.weekday.group().reduceSum(function(d) {
-      return (d.duration / 3600000).toFixed(2);
-    });
-
-    groups.projHours = dims.project.group().reduceSum(function(d) {
-      return (d.duration / 3600000).toFixed(1);
-    });
-
-    groups.projUnits = dims.project.group().reduceSum(function(d) {
-      return d.units;
-    });
-
-    groups.projIncome = dims.project.group().reduceSum(function(d) {
-      return d.income;
-    });
-
-    groups.taskHours = dims.task.group().reduceSum(function(d) {
-      return (d.duration / 3600000).toFixed(1);
-    });
-
-    groups.taskUnits = dims.task.group().reduceSum(function(d) {
-      return d.units;
-    });
-
-    groups.taskIncome = dims.task.group().reduceSum(function(d) {
-      return d.income;
-    });
-
-
     // Charts
     //
     $scope.charts = {};
@@ -143,14 +219,14 @@ angular.module('myApp.view-report', ['ngRoute'])
       },
       yAxis: [{
         labels: {
-            format: '${value}'
+          format: '${value}'
         },
         title: {
           text: ''
         }
       }, {
         labels: {
-            format: '{value} hr'
+          format: '{value} hr'
         },
         title: {
           text: ''
@@ -158,103 +234,18 @@ angular.module('myApp.view-report', ['ngRoute'])
         opposite: true
       }],
       title: {
-        text: 'Billable Hours per Week'
-      }
-    };
-
-    $scope.charts.weekday = {};
-    $scope.charts.weekday.init = {
-      chart: {
-        type: 'bar'
-      },
-      xAxis: {
-        type: 'category',
-        categories: weekdays
-      },
-      title: {
         text: ''
+      },
+      legend: {
+        enabled: true
       }
     };
 
-    $scope.charts.taskHours = {};
-    $scope.charts.taskHours.init = {
-      chart: {
-        type: 'bar'
-      },
-      xAxis: {
-        type: 'category'
-      },
-      title: {
-        text: 'Hours per Task'
-      }
-    };
 
-    $scope.charts.taskUnits = {};
-    $scope.charts.taskUnits.init = {
-      chart: {
-        type: 'bar'
-      },
-      xAxis: {
-        type: 'category'
-      },
-      title: {
-        text: 'Units per Task'
-      }
-    };
+    // Create the crossfilter and prime charts, tables etc
+    $scope.filterDay();
 
-    $scope.charts.taskIncome = {};
-    $scope.charts.taskIncome.init = {
-      chart: {
-        type: 'bar'
-      },
-      xAxis: {
-        type: 'category'
-      },
-      title: {
-        text: 'Income per Task'
-      }
-    };
-
-    $scope.charts.projHours = {};
-    $scope.charts.projHours.init = {
-      chart: {
-        type: 'bar'
-      },
-      xAxis: {
-        type: 'category'
-      },
-      title: {
-        text: 'Hours per Project'
-      }
-    };
-
-    $scope.charts.projUnits = {};
-    $scope.charts.projUnits.init = {
-      chart: {
-        type: 'bar'
-      },
-      xAxis: {
-        type: 'category'
-      },
-      title: {
-        text: 'Units per Project'
-      }
-    };
-
-    $scope.charts.projIncome = {};
-    $scope.charts.projIncome.init = {
-      chart: {
-        type: 'bar'
-      },
-      xAxis: {
-        type: 'category'
-      },
-      title: {
-        text: 'Income per Project'
-      }
-    };
-
-    $scope.rebuildSeries();
+    console.debug(Date.now());
   };
 
   // Initialize

@@ -16,20 +16,100 @@
 </nav>
 
 <div class="container-fluid">
-
+  <h3></h3>
   <div class="row">
-    <div class="col-sm-12 col-md-9">
-        <span>{{totIncome}}</span>
-        <div class="btn-group" role="group" aria-label="...">
-          <button type="button" class="btn btn-default">1wk</button>
-          <button type="button" class="btn btn-default">This FY</button>
-          <button type="button" class="btn btn-default">Last FY</button>
-        </div>
+    <div class="col-md-3">
+        <form role="form">
+          <div class="form-group">
+            <label>Period</label>
+            <select class="form-control" ng-model="filters.day" ng-change="filterDay()">
+              <option ng-repeat="option in selects.dates">{{option.key}}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Project</label>
+            <select class="form-control" ng-model="filters.project" ng-change="filterProject()">
+              <option ng-repeat="option in selects.projects">{{option.key}}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Billed</label>
+            <select class="form-control" ng-model="filters.billed" ng-change="filterBilled()">
+              <option ng-repeat="option in selects.billed">{{option.key}}</option>
+            </select>
+          </div>
+        </form>
+    </div>
+
+    <div class="col-md-3">
+      <h1 class="text-center">{{taskTotals.hours | number:0}}</h1>
+      <h6 class="text-center">Hours</h6>
+      <h1 class="text-center">{{taskTotals.units | number:0}}</h1>
+      <h6 class="text-center">Units</h6>
+      <h1 class="text-center">{{taskTotals.income | currency:'$':0}}</h1>
+      <h6 class="text-center">Income</h6>
+    </div>
+  
+
+    <div class="col-md-6">
+      <hc-chart>
+        <hc-options ng-model="charts.week.init"></hc-options>
+        <hc-series ng-model="charts.week.seriesIn" hc-options="{ name: 'Income', type: 'line'}"></hc-series>
+        <hc-series ng-model="charts.week.seriesHr" hc-options="{ name: 'Hours', type: 'line', yAxis: 1}"></hc-series>
+      </hc-chart>
     </div>
   </div>
 
+
+
   <div class="row">
-    <div class="col-sm-12 col-md-9">
+    <div class="col-sm-12 col-md-6">
+      <table class="table table-condensed">
+        <thead>
+          <tr>
+            <th class="col-md-6"><span ng-click="changeSort('name')">Task</span></th>
+            <th class="text-right"><span ng-click="changeSort('hours')">Hours</span></th>
+            <th class="text-right"><span ng-click="changeSort('units')">Units</span></th>
+            <th class="text-right"><span ng-click="changeSort('income')">Income</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="task in tasks | orderBy:sort.field:sort.reverse" ng-click="filterTask(task.name)" ng-class="{active: task.name == filters.task}">
+            <td>{{::task.name}}</td>
+            <td class="text-right">{{::task.hours | number:2}}</td>
+            <td class="text-right">{{::task.units | number:1}}</td>
+            <td class="text-right">{{::task.income | currency}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-sm-12 col-md-6">
+      <table class="table table-condensed" ng-show="topWork">
+        <thead>
+          <tr>
+            <th class="col-md-3"><span ng-click="changeSort('')">Day</span></th>
+            <th class="text-right"><span ng-click="changeSort('')">Hours</span></th>
+            <th class="text-right"><span ng-click="changeSort('')">Rate</span></th>
+            <th class="col-md-6"><span ng-click="changeSort('')">Comments</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="work in topWork">
+            <td>{{::work.started | date:'dd/MM/yy h:mm a'}}</td>
+            <td class="text-right">{{::work.duration / 3600000 | number:2}}</td>
+            <td class="text-right">{{::work.rateHour | number:2}}</td>
+            <td>{{::work.description}}</td>
+          </tr>
+        </tbody>
+      </table>
+  </div>
+
+<!-- 
+
+  <div class="row">
+    <div class="col-md-12">
       <div class="row">
         <div class="col-md-6">
           <div class="panel panel-default">
@@ -41,7 +121,7 @@
               </hc-chart>
             </div>
           </div>
-        </div> <!-- column -->
+        </div>
       </div>
     </div>
   </div>
@@ -60,7 +140,7 @@
               </hc-chart>
             </div>
           </div>
-        </div> <!-- column -->
+        </div>
         <div class="col-md-6">
           <div class="panel panel-default">
             <div class="panel-body">
@@ -71,8 +151,8 @@
               </hc-chart>
             </div>
           </div>
-        </div> <!-- column -->
-      </div> <!-- row -->
+        </div>
+      </div>
 
 
       <div class="row">
@@ -88,7 +168,7 @@
             </div>
           </div>
         </div>
-      </div> <!-- row -->
+      </div>
 
 
       <div class="row">
@@ -103,7 +183,7 @@
               </hc-chart>
             </div>
           </div>
-        </div> <!-- column -->
+        </div>
 
         <div class="col-md-6">
           <div class="panel panel-default">
@@ -115,8 +195,8 @@
               </hc-chart>
             </div>
           </div>
-        </div> <!-- column -->
-      </div> <!-- row -->
+        </div>
+      </div>
 
 
       <div class="row">
@@ -130,7 +210,7 @@
               </hc-chart>
             </div>
           </div>
-        </div> <!-- column -->
+        </div>
 
         <div class="col-md-6">
           <div class="panel panel-default">
@@ -142,9 +222,9 @@
               </hc-chart>
             </div>
           </div>
-        </div> <!-- column -->
+        </div>
 
-      </div> <!-- row -->
+      </div>
 
 
     </div>
@@ -156,7 +236,6 @@
         </a>
       </div>
 
-      <!--
       <div class="row">
         <div class="col-md-12">
           <table class="table">
@@ -181,9 +260,9 @@
           </table>
         </div>
       </div>
-    -->
     </div>
   </div>
+-->
 
 
 </div> <!-- container -->

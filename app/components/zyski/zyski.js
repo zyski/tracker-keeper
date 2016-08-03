@@ -55,6 +55,29 @@ myModule.filter('dueInDays', [function() {
   }
 }]);
 
+
+/**
+  * Make moment an angular service
+  */
+myModule.factory('moment', ['$window', function($window) {
+  if(!$window.moment){
+    console.error('moment: not available');
+  }
+  return $window.moment;
+}]);
+
+
+/**
+  * Make crossfilter an angular service
+  */
+myModule.factory('crossfilter', ['$window', function($window) {
+  if(!$window.crossfilter){
+    console.error('crossfilter: not available');
+  }
+  return $window.crossfilter;
+}]);
+
+
 /**
   * Hold all object keys
   * NB: A key should never start at zero (due to being a falsey)! 
@@ -120,7 +143,7 @@ myModule.factory('Task', ['Keys', function(Keys) {
     }
   }
 
-  // Contructor
+  // Constructor
   function Task (json) {
     if (!json) json = {};
 
@@ -204,6 +227,17 @@ myModule.factory('TaskList', ['$filter', 'Task', function($filter, Task) {
       return results;
     },
 
+    // Return an array of projects
+    get projects () {
+      var results = [], name, id;
+
+      for (id in tasksCache) {
+        name = tasksCache[id].projectName || 'No Project';
+        if (results.indexOf(name) === -1)
+          results.push(name);
+      }
+      return results;
+    },
 
     // Find a task by id, returning a single task
     findId: function (id) {
@@ -549,7 +583,7 @@ myModule.factory('Shift', ['$filter', 'Keys', 'Work', function($filter, Keys, Wo
 /**
   * Hold a set of Shifts
   */
-myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, Shift, TaskList) {
+myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', 'Work', function($filter, Shift, TaskList, Work) {
 
   // Private Properties 
   
@@ -580,8 +614,35 @@ myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter,
           if (x.taskId) {
             var tmp = angular.copy(x);
             tmp.taskRef = TaskList.findId(x.taskId);
+            tmp.weekDay = tmp.started.getDay();
             results.push(tmp);
           }
+        });
+      }
+      return results;
+    },
+
+
+    // Create a report of all work
+    //todo: filter by a date range passed as [start_ms, end_ms]
+    reportWork: function (start = 0, end = 0) {
+      let results = [];
+      let rptWrk = {};
+
+      for (var id in shiftsCache) {
+        shiftsCache[id].work.forEach(function(x, i, a) {
+          if (x.started.getTime() < start || x.started.getTime() > end) return;
+
+          if (x.taskId) {
+            rptWrk = new Work(x);
+            rptWrk.taskRef = TaskList.findId(x.taskId);
+            rptWrk.billed = false;
+            if (rptWrk.taskRef && rptWrk.taskRef.lastBill && rptWrk.started.getTime() < rptWrk.taskRef.lastBill.getTime()) {
+              rptWrk.billed = true;
+            }
+            results.push(rptWrk);
+          }
+
         });
       }
       return results;
@@ -614,7 +675,7 @@ myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter,
           work.day = shift.id;
           work.duration = shift.work[i].duration;
           work.units = shift.work[i].units;
-          work.income = work.duration / 3600000 * task.rateHour + work.units * task.rateUnit;
+          work.income = shift.work[i].income;
           work.description = shift.work[i].description;
           work.taskId = shift.work[i].taskId;
 
@@ -1081,4 +1142,128 @@ myModule.controller('editTextCtrl', ['$scope', '$document', 'title', 'text', 'cl
 }]);
 
 
+/**
+  * Create a crossfilter of work
+  */
+myModule.factory('cfWork', ['crossfilter', 'moment', 'ShiftList', function(crossfilter, moment, ShiftList) {
 
+  // Private Properties
+
+  // Private Functions
+  function reduceAdd (p, v) {
+    p.hours += v.duration / 3600000;
+    p.units += v.units;
+    p.income += v.income;
+
+    //if (v.description) p.description[v.started.getTime()] = v.description;
+
+    return p;
+  }
+
+  function reduceRemove (p, v) {
+    p.hours -= v.duration / 3600000;
+    p.units -= v.units;
+    p.income -= v.income;
+
+    //delete p.description[v.started];
+
+    return p;
+  }
+
+  function reduceInitial () {
+    return {
+      hours: 0.0,
+      units: 0.0,
+      income: 0.0,
+      //description: {}
+    };
+  }
+
+
+  // Prototype
+  cfWork.prototype = {
+
+  }
+
+  // Constructor
+  function cfWork (range) {
+    //
+    // crossfilter
+    //
+    this.cf = crossfilter(ShiftList.reportWork(range[0], range[1]));
+
+    //
+    // dimensions
+    //
+    this.dims = {};
+
+    // start of week
+    this.dims.week = this.cf.dimension(function (d) {
+      return moment(d.started).startOf('week').valueOf();
+    });
+
+    // start of day i.e. 12am
+    this.dims.day = this.cf.dimension(function (d) {
+      return moment(d.started).startOf('day').valueOf();
+    });
+
+    // day of week i.e. 0=Sun, 1=Mon, 2=Tue etc
+    this.dims.weekday = this.cf.dimension(function (d) {
+      return d.started.getDay();
+    });
+
+    // project name
+    this.dims.project = this.cf.dimension(function (d) {
+      return d.projectName || 'No Project';
+    });
+
+    // task name
+    this.dims.task = this.cf.dimension(function (d) {
+      if (d.taskRef) {
+        return d.taskRef.name;
+      } else {
+        return 'No Task';
+      }
+    });
+
+    // billed
+    this.dims.billed = this.cf.dimension(function (d) {
+      if (d.taskRef && d.taskRef.lastBill) {
+        return d.started.getTime() < d.taskRef.lastBill.getTime() ? true : false;
+      } else {
+        return false;
+      }
+    });
+
+
+    //
+    // Groups
+    //
+    this.groups = {};
+
+    // project: Sum duration, units, income simultaneously
+    this.groups.project = this.dims.project.group().reduce(reduceAdd, reduceRemove, reduceInitial);
+
+    // task: Sum duration, units, income simultaneously
+    this.groups.task = this.dims.task.group().reduce(reduceAdd, reduceRemove, reduceInitial);
+
+    // day: Sum duration, units, income simultaneously
+    this.groups.day = this.dims.day.group().reduce(reduceAdd, reduceRemove, reduceInitial);
+
+    // weekday: Sum duration, units, income simultaneously
+    this.groups.weekday = this.dims.weekday.group().reduce(reduceAdd, reduceRemove, reduceInitial);
+
+    // week: Sum duration, units, income simultaneously
+    this.groups.week = this.dims.week.group().reduce(reduceAdd, reduceRemove, reduceInitial);
+
+    // billed: Sum duration, units, income simultaneously
+    this.groups.billed = this.dims.billed.group().reduce(reduceAdd, reduceRemove, reduceInitial);
+
+  }
+
+
+  return {
+    create: function (range) { return new cfWork(range); }
+  };
+
+}]);

@@ -122,12 +122,12 @@
 
           <div class="zg-toolbar">
             <form class="form-inline" novalidate name="" role="form">
-              <div class="btn-group" dropdown is-open="status.rptTypeOpen">
-                <button type="button" class="btn btn-default dropdown-toggle" dropdown-toggle>
+              <div class="btn-group" uib-dropdown is-open="status.rptTypeOpen">
+                <button type="button" class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
                   {{summary.typeName}}
                   <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu" role="menu">
+                <ul class="dropdown-menu" role="menu" uib-dropdown-menu>
                   <li ng-repeat="type in summary.types"><a href="" ng-click="setSummaryReport($index); status.rptTypeOpen = 0">{{type}}</a></li>
                 </ul>
               </div>
