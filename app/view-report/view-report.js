@@ -30,14 +30,18 @@ angular.module('myApp.view-report', ['ngRoute'])
     // e.g. you are looking at a particular day for a timesheet
 
     var eod = moment().endOf('day').valueOf();
+    var startFY = moment();
+    var endFY;
+    startFY.month() < 6 ? startFY.startOf('year').subtract(6, 'months') : startFY.startOf('year').add(6, 'months');
+    endFY = startFY.clone().add(1,'years').subtract(1,'ms');
 
     return [
       {key: 'All', value: null},
       {key: 'Today', value: [moment().startOf('day').valueOf(), eod]},
       {key: 'This Week', value: [moment().startOf('week').valueOf(), moment().endOf('week').valueOf()]},
       {key: 'This Month', value: [moment().startOf('month').valueOf(), moment().endOf('month').valueOf()]},
-      {key: 'This FY', value: [0,0]},
-      {key: 'Last FY', value: [0,0]},
+      {key: 'This FY', value: [startFY.valueOf(), endFY.valueOf()]},
+      {key: 'Last FY', value: [startFY.subtract(1,'years'),endFY.subtract(1,'years')]},
       {key: 'Last 7 days',   value: [moment().startOf('day').subtract(6, 'days').valueOf(), eod]},
       {key: 'Last 14 days',  value: [moment().startOf('day').subtract(13, 'days').valueOf(), eod]},
       {key: 'Last 20 days',  value: [moment().startOf('day').subtract(19, 'days').valueOf(), eod]},
@@ -120,21 +124,14 @@ angular.module('myApp.view-report', ['ngRoute'])
   // work from the period selected. This will cut down the 
   // data substantially.
   $scope.filterDay = function () {
-    console.debug('view-report => filterDay');
-    console.debug(Date.now());
-
     // Re-create the crossfilter
     let range = lookup($scope.filters.day, $scope.selects.dates) || [0, Date.now()];
     let cf = cfWork.create(range);
     dims = cf.dims;
     groups = cf.groups;
 
-    console.debug(Date.now());
-
     // Rebuild scope variables
     $scope.rebuildAll();
-
-    console.debug(Date.now());
   };
 
 
@@ -184,9 +181,6 @@ angular.module('myApp.view-report', ['ngRoute'])
 
 
   $scope.init = function () {
-    console.debug('view-report => init()');
-    console.debug(Date.now());
-
     $scope.sort = {};
     $scope.sort.field = 'name';
     $scope.sort.reverse = false;
@@ -245,7 +239,6 @@ angular.module('myApp.view-report', ['ngRoute'])
     // Create the crossfilter and prime charts, tables etc
     $scope.filterDay();
 
-    console.debug(Date.now());
   };
 
   // Initialize
