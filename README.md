@@ -4,12 +4,35 @@ What did I do today? A simple task and time tracker.
 
 ## Setup
 
-It's built as a node application, so run npm install to install components. 
-A http-server is supplied, run npm start to kick it off.
-The application is all front end, and will store its data in the browsers localStorage object.
-Only tested with Chrome, so your mileage will vary with other browsers.
+It should run as a nodejs application after installing dependencies.
+
+```
+npm install
+```
+
+Start your web server:
+
+```
+npm start
+```
+
+Point your browser to the running web server
+
+```
+http://localhost:8888/app
+```
+
+## Notes
+
+Missing some dependencies... crossfilter, highcharts, and my own lib
+to glue highcharts and crossfilter together.
+
+This application is all front end, and will store its data in the browsers 
+localStorage object. Only tested with Chrome, so your mileage will vary with
+other browsers.
 
 ## About
 
-I wanted to learn javascript, so found myself building something I could use and evolve.
-This is the result. Of course, still lots to learn, clean up and tweak!
+I wanted to learn javascript, and my wife and I needed a simple time 
+sheeting application. This is the result.
+

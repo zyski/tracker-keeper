@@ -1267,3 +1267,91 @@ myModule.factory('cfWork', ['crossfilter', 'moment', 'ShiftList', function(cross
   };
 
 }]);
+
+
+
+/**
+  * Create some selects
+  */
+myModule.factory('selects', ['moment', 'TaskList', function(moment, TaskList) {
+
+  // Private Properties
+
+
+  // Private Functions
+
+  // Builds an array of objects in form { key: '', value: [] }
+  function dayRanges () {
+    var eod = moment().endOf('day').valueOf();
+    var startFY = moment();
+    var endFY;
+    startFY.month() < 6 ? startFY.startOf('year').subtract(6, 'months') : startFY.startOf('year').add(6, 'months');
+    endFY = startFY.clone().add(1, 'years').subtract(1 ,'ms');
+
+    return [
+      {key: 'All', value: null},
+      {key: 'Today', value: [moment().startOf('day').valueOf(), eod]},
+      {key: 'This Week', value: [moment().startOf('week').valueOf(), moment().endOf('week').valueOf()]},
+      {key: 'This Month', value: [moment().startOf('month').valueOf(), moment().endOf('month').valueOf()]},
+      {key: 'This FY', value: [startFY.valueOf(), endFY.valueOf()]},
+      {key: 'Last FY', value: [startFY.subtract(1,'years'),endFY.subtract(1,'years')]},
+      {key: 'Last 7 days',   value: [moment().startOf('day').subtract(6, 'days').valueOf(), eod]},
+      {key: 'Last 14 days',  value: [moment().startOf('day').subtract(13, 'days').valueOf(), eod]},
+      {key: 'Last 20 days',  value: [moment().startOf('day').subtract(19, 'days').valueOf(), eod]},
+      {key: 'Last 365 days', value: [moment().startOf('day').subtract(364, 'days').valueOf(), eod]}
+    ];
+  };
+
+  function billed () {
+    return [
+      {key: 'All', value: null},
+      {key: 'Billed', value: true},
+      {key: 'Unbilled', value: false}
+    ];
+  }
+
+  function projects () {
+    let prjs = TaskList.projects.map(function (x) {
+      return {key: x, value: x};
+    });
+    prjs.unshift({key: 'All', value: null});
+    return prjs;
+  }
+
+  // Prototype
+  Select.prototype = {
+    // Return the array representation
+    toArray: function () {
+      return this._a;
+    },
+
+    // Find the key property in array and
+    // return the value property.
+    find: function (key) {
+      let value = null;
+      this._a.some(function (x) {
+        if (x.key === key) {
+          value = x.value;
+          return true;  // break out
+        }
+      });
+      return value;
+    }
+
+  }
+
+  // Constructor
+  function Select (array) {
+    this._a = array;
+  }
+
+  return {
+    dayRanges: dayRanges,
+    dates: new Select(dayRanges()),
+    billed: new Select(billed()),
+    projects: new Select(projects())
+  };
+
+}]);
+
+

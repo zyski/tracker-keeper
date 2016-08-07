@@ -9,59 +9,15 @@ angular.module('myApp.view-report', ['ngRoute'])
   });
 }])
 
-.controller('viewRptCtrl', ['$scope', '$routeParams', '$location', 'cfWork', 'moment', 'hcSeries', 'TaskList',
-	function($scope, $routeParams, $location, cfWork, moment, hcSeries, TaskList) {
+.controller('viewRptCtrl', ['$scope', '$routeParams', '$location', 'cfWork', 'moment', 'hcSeries', 'selects',
+	function($scope, $routeParams, $location, cfWork, moment, hcSeries, selects) {
 
-  $scope.debug = function (value) {
-    console.debug('debug', value);
-  };
-
-  var dims, groups, weekdays = 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday'.split(',');
-
+  var dims, groups;
 
   $scope.changeSort = function (predicate) {
     $scope.sort.field = predicate;
     $scope.sort.reverse = !$scope.sort.reverse;
   };
-
-  // Builds an array of objects in form { key: '', value: [] }
-  function dayRanges () {
-    // todo: has to build the ranges relvative to a particular day
-    // e.g. you are looking at a particular day for a timesheet
-
-    var eod = moment().endOf('day').valueOf();
-    var startFY = moment();
-    var endFY;
-    startFY.month() < 6 ? startFY.startOf('year').subtract(6, 'months') : startFY.startOf('year').add(6, 'months');
-    endFY = startFY.clone().add(1,'years').subtract(1,'ms');
-
-    return [
-      {key: 'All', value: null},
-      {key: 'Today', value: [moment().startOf('day').valueOf(), eod]},
-      {key: 'This Week', value: [moment().startOf('week').valueOf(), moment().endOf('week').valueOf()]},
-      {key: 'This Month', value: [moment().startOf('month').valueOf(), moment().endOf('month').valueOf()]},
-      {key: 'This FY', value: [startFY.valueOf(), endFY.valueOf()]},
-      {key: 'Last FY', value: [startFY.subtract(1,'years'),endFY.subtract(1,'years')]},
-      {key: 'Last 7 days',   value: [moment().startOf('day').subtract(6, 'days').valueOf(), eod]},
-      {key: 'Last 14 days',  value: [moment().startOf('day').subtract(13, 'days').valueOf(), eod]},
-      {key: 'Last 20 days',  value: [moment().startOf('day').subtract(19, 'days').valueOf(), eod]},
-      {key: 'Last 365 days', value: [moment().startOf('day').subtract(364, 'days').valueOf(), eod]}
-    ];
-  };
-
-
-  // Helper function to find a value in an array
-  function lookup (key, array) {
-    let value = null;
-    array.some(function (x) {
-      if (x.key === key) {
-        value = x.value;
-        return true;  // break out
-      }
-    });
-    return value;
-  }
-
 
   function hcMapFuncIn (x, i, a) {
     if (angular.isString(x.key))
@@ -84,13 +40,12 @@ angular.module('myApp.view-report', ['ngRoute'])
     $scope.charts.week.seriesHr = hcSeries.convert(groups.week, null, hcMapFuncHr);
   };
 
-
   $scope.rebuildTasks = function () {
     $scope.filterTask(null);
 
     // Populate Task array and create a grand total
     $scope.tasks = [];
-    $scope.taskTotals = { hours: 0.0, units: 0.0, income: 0.0 };
+    $scope.taskTotal = { hours: 0.0, units: 0.0, income: 0.0 };
     groups.task.all().forEach(function (x, i, a) {
       $scope.tasks.push({
         name: x.key, 
@@ -98,9 +53,9 @@ angular.module('myApp.view-report', ['ngRoute'])
         units: x.value.units,
         income: x.value.income
       });
-      $scope.taskTotals.hours += x.value.hours;
-      $scope.taskTotals.units += x.value.units;
-      $scope.taskTotals.income += x.value.income;
+      $scope.taskTotal.hours += x.value.hours;
+      $scope.taskTotal.units += x.value.units;
+      $scope.taskTotal.income += x.value.income;
     });
   };
 
@@ -112,40 +67,31 @@ angular.module('myApp.view-report', ['ngRoute'])
 
   // Filters
   $scope.filterProject = function () {
-    // Adjust filters
-    dims.project.filter(lookup($scope.filters.project, $scope.selects.projects));
-
-    // Rebuild scope variables
-    $scope.rebuildAll();    
+    dims.project.filter(selects.projects.find($scope.filters.project));
+    $scope.rebuildAll();
   };
 
-
-  // todo: this need to rebuild the crossfilter to re-query
-  // work from the period selected. This will cut down the 
-  // data substantially.
   $scope.filterDay = function () {
-    // Re-create the crossfilter
-    let range = lookup($scope.filters.day, $scope.selects.dates) || [0, Date.now()];
+    // Re-create the crossfilter and reset globals
+    let range = selects.dates.find($scope.filters.day) || [0, Date.now()];
     let cf = cfWork.create(range);
     dims = cf.dims;
     groups = cf.groups;
 
-    // Rebuild scope variables
+    // Reset filters
+    $scope.filters.project = 'All';
+    $scope.filters.billed = 'All';
+
     $scope.rebuildAll();
   };
 
-
   $scope.filterBilled = function () {
-    // Adjust filters
-    dims.billed.filter(lookup($scope.filters.billed, $scope.selects.billed));
-
-    // Rebuild scope variables
-    $scope.rebuildAll();    
+    dims.billed.filter(selects.billed.find($scope.filters.billed));
+    $scope.rebuildAll();
   };
 
-
   $scope.filterTask = function (value) {
-      // Is filter already active? If so, cancel it
+    // Is filter already active? If so, cancel it
     if (value == null || $scope.filters.task == value) {
       $scope.filters.task = null;
       dims.task.filter(null);
@@ -160,7 +106,8 @@ angular.module('myApp.view-report', ['ngRoute'])
     $scope.rebuildSeries();
   };
 
-
+  // Generic filter
+  // todo: refactory into global lib?
   $scope.filter = function (dim, select) {
     if (!select) {
       dims[dim].filterAll();
@@ -179,23 +126,15 @@ angular.module('myApp.view-report', ['ngRoute'])
     $scope.rebuildAll();
   }
 
-
   $scope.init = function () {
     $scope.sort = {};
     $scope.sort.field = 'name';
     $scope.sort.reverse = false;
 
     $scope.selects = {},
-    $scope.selects.projects = TaskList.projects.map(function (x) {
-      return {key: x, value: x};
-    });
-    $scope.selects.projects.unshift({key: 'All', value: null});
-    $scope.selects.dates = dayRanges();
-    $scope.selects.billed = [
-      {key: 'All', value: null},
-      {key: 'Billed', value: true},
-      {key: 'Unbilled', value: false}
-    ];
+    $scope.selects.projects = selects.projects.toArray();
+    $scope.selects.dates = selects.dates.toArray();
+    $scope.selects.billed = selects.billed.toArray();
 
     $scope.filters = {};
     $scope.filters.project = 'All';
@@ -235,10 +174,8 @@ angular.module('myApp.view-report', ['ngRoute'])
       }
     };
 
-
     // Create the crossfilter and prime charts, tables etc
     $scope.filterDay();
-
   };
 
   // Initialize
