@@ -9,8 +9,8 @@ angular.module('myApp.view-report', ['ngRoute'])
   });
 }])
 
-.controller('viewRptCtrl', ['$scope', '$routeParams', '$location', 'cfWork', 'moment', 'hcSeries', 'selects',
-	function($scope, $routeParams, $location, cfWork, moment, hcSeries, selects) {
+.controller('viewRptCtrl', ['$scope', '$routeParams', '$location', '$filter', 'cfWork', 'moment', 'hcSeries', 'selects',
+	function($scope, $routeParams, $location, $filter, cfWork, moment, hcSeries, selects) {
 
   var dims, groups;
 
@@ -48,7 +48,7 @@ angular.module('myApp.view-report', ['ngRoute'])
     $scope.taskTotal = { hours: 0.0, units: 0.0, income: 0.0 };
     groups.task.all().forEach(function (x, i, a) {
       $scope.tasks.push({
-        name: x.key, 
+        name: $filter('taskName')(x.key), 
         hours: x.value.hours,
         units: x.value.units,
         income: x.value.income

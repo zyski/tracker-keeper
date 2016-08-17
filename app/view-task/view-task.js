@@ -9,11 +9,12 @@ angular.module('myApp.view-task', ['ngRoute', 'angularModalService'])
   });
 }])
 
-.controller('viewTaskCtrl', ['$scope', '$filter', '$routeParams', '$location', '$document', 'ModalService', 'TaskList', 'ShiftList', 'focus', 
-	function($scope, $filter, $routeParams, $location, $document, ModalService, TaskList, ShiftList, focus) {
+.controller('viewTaskCtrl', ['$scope', '$filter', '$routeParams', '$location', '$document', 'ModalService', 'TaskList', 'ShiftList', 'focus', 'selects', 'cfWork',
+	function($scope, $filter, $routeParams, $location, $document, ModalService, TaskList, ShiftList, focus, selects, cfWork) {
+
+  let dims, groups;
 
   $scope.openRecord = function () {
-
     ModalService.showModal({
       templateUrl: "components/zyski/findTaskId.html",
       controller: "findTaskIdCtrl",
@@ -59,16 +60,13 @@ angular.module('myApp.view-task', ['ngRoute', 'angularModalService'])
   };
 
   // Object to store user settings
-  function Settings (json) {
-    if (!json) json = {};
+  function Settings (config) {
+    if (!config) config = {};
     // Last task opened
-    this.taskId = json.taskId || null;
-    // Summary report type
-    this.summary = {};
-    this.summary.type = 1;
-    if (json.summary && json.summary.type > -1) {
-      this.summary.type = json.summary.type;
-    }
+    this.taskId = config.taskId || null;
+
+    // Filter
+    this.filters = config.filters || {};
   }
 
   function loadSettings () {
@@ -84,80 +82,57 @@ angular.module('myApp.view-task', ['ngRoute', 'angularModalService'])
     localStorage['task'] = angular.toJson($scope.settings);
   }
 
-  $scope.setSummaryReport = function (type) {
-    if (type > -1 && $scope.summary.types.length) {
-      $scope.settings.summary.type = type;
+
+  $scope.filterDay = function () {
+    // Re-create the crossfilter and reset globals
+    let range, cf;
+
+    if ($scope.settings.filters.day === 'Unbilled') {
+      // find all work, then filter to billed == false
+      range = [0, Date.now()];
+      cf = cfWork.create(range);
+      cf.dims.billed.filterExact(false);
+    } else {
+      // find range
+      range = selects.dates.find($scope.settings.filters.day) || [0, Date.now()];
+      cf = cfWork.create(range);
     }
-    $scope.summary.typeName = $scope.summary.types[$scope.settings.summary.type];
+
+    dims = cf.dims;
+    groups = cf.groups;
+    
+    // crossfilter returns all tasks so immediately filter to current taskId
+    dims.task.filterExact($scope.record.id);
+
+    $scope.report.start = range[0];
+    $scope.report.end = range[1];
+    $scope.report.data = dims.day.bottom(Infinity);
+
+    // Split billed and unbilled, keeping a total
+    // todo: do we actually need this?
+    $scope.report.totals = {};
+    let sum = {};
+    sum.hours = 0;
+    sum.units = 0;
+    sum.income = 0;
+
+    $scope.report.totals.true  = { hours: 0, units: 0, income: 0 };
+    $scope.report.totals.false = { hours: 0, units: 0, income: 0 };
+    $scope.report.totals.total = { hours: 0, units: 0, income: 0 };
+
+    groups.billed.all().forEach(function (x, i, a) {
+      $scope.report.totals[x.key].hours = x.value.hours;
+      $scope.report.totals[x.key].units = x.value.units;
+      $scope.report.totals[x.key].income = x.value.income;
+
+      // Kepp a total
+      $scope.report.totals['total'].hours += x.value.hours;
+      $scope.report.totals['total'].units += x.value.units;
+      $scope.report.totals['total'].income += x.value.income;
+    });
 
     saveSettings();
-    $scope.runSummaryReport();
   };
-
-
-  $scope.runSummaryReport = function () {
-    var now = new Date();
-    switch ($scope.settings.summary.type) {
-      case 1:
-        // this week (Monday-Sunday). Sunday=0 in javascript so change to 7 to make calcs easier
-        var day = now.getDay() || 7;
-        $scope.summary.start = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1 - day);
-        $scope.summary.end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7 - day);
-        break;
-
-      case 2:
-        // this calendar month
-        $scope.summary.start = new Date(now.getFullYear(), now.getMonth(), 1);
-        $scope.summary.end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        break;
-
-      case 3:
-        // this FY
-        $scope.summary.start = new Date(now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear(), 6, 1);
-        $scope.summary.end = new Date(now);
-        break;
-
-      case 4:
-        // last FY
-        $scope.summary.start = new Date(now.getMonth() < 6 ? now.getFullYear() - 2 : now.getFullYear() - 1, 6, 1);
-        $scope.summary.end = new Date($scope.summary.start.getFullYear() + 1, 5, 30);
-        break;
-
-      case 5:
-        // Last seven days
-        $scope.summary.start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
-        $scope.summary.end = new Date(now);
-        break;
-
-      case 6:
-        // Last fourteen days
-        $scope.summary.start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 13);
-        $scope.summary.end = new Date(now);
-        break;
-
-      case 7:
-        // Last twenty days
-        $scope.summary.start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 19);
-        $scope.summary.end = new Date(now);
-        break;
-
-      case 8:
-        // Last 365 days
-        $scope.summary.start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 364);
-        $scope.summary.end = new Date(now);
-        break;
-
-      case 0:
-      default:
-        // today
-        $scope.summary.start = new Date(now);
-        $scope.summary.end = new Date(now);
-        break;
-    };
-    
-    $scope.summary.report = ShiftList.reportTask($scope.record, $scope.summary.start, $scope.summary.end);
-  };
-
 
   $scope.init = function () {
     $scope.params = $routeParams;
@@ -167,30 +142,35 @@ angular.module('myApp.view-task', ['ngRoute', 'angularModalService'])
       // Use route
       $scope.settings.taskId = $scope.params.taskId;
     } else {
-      // Use last task viewed
+      // Use last task viewed. NB: $location.path will route back to this 
+      // view and reinitialise the controller.
       if ($scope.settings.taskId) {
         $location.path('task/' + $scope.settings.taskId);
         return;
       }
     }
 
-    $scope.summary = {};
-    $scope.summary.types = ['Today', 'This Week', 'This Month', 'This FY', 'Last FY', 'Last 7 days', 'Last 14 days', 'Last 20 days', 'Last 365 days'];
-    $scope.summary.typeName = $scope.summary.types[$scope.settings.summary.type];
-    $scope.summary.report = {};
-    $scope.summary.start = {};
-    $scope.summary.end = {};
+    // Prime data for <select> elements
+    $scope.selects = {};
+    $scope.selects.dates = angular.copy(selects.dates.toArray());
+    $scope.selects.dates.push({key: 'Unbilled', value: false});
 
+    // Prime record being displayed
     $scope.record = TaskList.findId($scope.settings.taskId);
     if (!$scope.record) {
       $scope.record = TaskList.create();
     }
     $scope.master = angular.copy($scope.record);
-    $scope.runSummaryReport();
-    saveSettings();
 
+    // Build Summary Report
+    $scope.report = {};
+    $scope.filterDay();
+
+    // Other reports
     $scope.reminders = TaskList.findRem();
     $scope.deadlines = TaskList.findDeadline();
+    
+    // Starting field
     focus('taskName');
   };
 

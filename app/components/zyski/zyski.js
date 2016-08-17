@@ -11,6 +11,7 @@ var myModule = angular.module('myApp.zyski', []);
 
 myModule.filter('time', [function() {
   return function(ms, units) {
+    if (ms === undefined) return null;
 
     if (units === 'minutes') {
       ms = ms * 60000;
@@ -624,7 +625,6 @@ myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', 'Work', function(
 
 
     // Create a report of all work
-    //todo: filter by a date range passed as [start_ms, end_ms]
     reportWork: function (start = 0, end = 0) {
       let results = [];
       let rptWrk = {};
@@ -637,9 +637,18 @@ myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', 'Work', function(
             rptWrk = new Work(x);
             rptWrk.taskRef = TaskList.findId(x.taskId);
             rptWrk.billed = false;
-            if (rptWrk.taskRef && rptWrk.taskRef.lastBill && rptWrk.started.getTime() < rptWrk.taskRef.lastBill.getTime()) {
-              rptWrk.billed = true;
+
+            if (rptWrk.taskRef) {
+              if (rptWrk.taskRef.lastBill) {
+                if (rptWrk.started.getTime() < rptWrk.taskRef.lastBill.getTime() + 86399999) {
+                  rptWrk.billed = true;
+                }
+              } else {
+                // we assume no lastBill means billed
+                rptWrk.billed = true;
+              }
             }
+
             results.push(rptWrk);
           }
 
@@ -1155,7 +1164,7 @@ myModule.factory('cfWork', ['crossfilter', 'moment', 'ShiftList', function(cross
     p.units += v.units;
     p.income += v.income;
 
-    //if (v.description) p.description[v.started.getTime()] = v.description;
+    if (v.description) p.description[v.started.getTime()] = v.description;
 
     return p;
   }
@@ -1165,7 +1174,7 @@ myModule.factory('cfWork', ['crossfilter', 'moment', 'ShiftList', function(cross
     p.units -= v.units;
     p.income -= v.income;
 
-    //delete p.description[v.started];
+    delete p.description[v.started];
 
     return p;
   }
@@ -1175,7 +1184,7 @@ myModule.factory('cfWork', ['crossfilter', 'moment', 'ShiftList', function(cross
       hours: 0.0,
       units: 0.0,
       income: 0.0,
-      //description: {}
+      description: {}
     };
   }
 
@@ -1217,22 +1226,18 @@ myModule.factory('cfWork', ['crossfilter', 'moment', 'ShiftList', function(cross
       return d.projectName || 'No Project';
     });
 
-    // task name
+    // task
     this.dims.task = this.cf.dimension(function (d) {
       if (d.taskRef) {
-        return d.taskRef.name;
+        return d.taskRef.id;
       } else {
-        return 'No Task';
+        return 0;
       }
     });
 
     // billed
     this.dims.billed = this.cf.dimension(function (d) {
-      if (d.taskRef && d.taskRef.lastBill) {
-        return d.started.getTime() < d.taskRef.lastBill.getTime() ? true : false;
-      } else {
-        return false;
-      }
+      return d.billed;
     });
 
 
@@ -1294,7 +1299,7 @@ myModule.factory('selects', ['moment', 'TaskList', function(moment, TaskList) {
       {key: 'This Week', value: [moment().startOf('week').valueOf(), moment().endOf('week').valueOf()]},
       {key: 'This Month', value: [moment().startOf('month').valueOf(), moment().endOf('month').valueOf()]},
       {key: 'This FY', value: [startFY.valueOf(), endFY.valueOf()]},
-      {key: 'Last FY', value: [startFY.subtract(1,'years'),endFY.subtract(1,'years')]},
+      {key: 'Last FY', value: [startFY.subtract(1,'years').valueOf(),endFY.subtract(1,'years').valueOf()]},
       {key: 'Last 7 days',   value: [moment().startOf('day').subtract(6, 'days').valueOf(), eod]},
       {key: 'Last 14 days',  value: [moment().startOf('day').subtract(13, 'days').valueOf(), eod]},
       {key: 'Last 20 days',  value: [moment().startOf('day').subtract(19, 'days').valueOf(), eod]},
