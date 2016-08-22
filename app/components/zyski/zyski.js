@@ -589,7 +589,6 @@ myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', 'Work', function(
   // Private Properties 
   
   // Associative array
-  var shifts = {};
   var shiftsCache = {};
   var usingREST = false;
 
@@ -624,91 +623,55 @@ myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', 'Work', function(
     },
 
 
-    // Create a report of all work
-    reportWork: function (start = 0, end = 0) {
+    // Create an array of all work, grouping by
+    // day, then taskId.
+    reportWork: function (start = 0, end = 0, taskId) {
+      let days = {};
       let results = [];
-      let rptWrk = {};
+      let record, day, key;
 
       for (var id in shiftsCache) {
+        // Work is always >= Shift.started
+        if (shiftsCache[id].started.getTime() < start) continue;
+
         shiftsCache[id].work.forEach(function(x, i, a) {
-          if (x.started.getTime() < start || x.started.getTime() > end) return;
+          if (x.started.getTime() > end) return;
+          if (!x.taskId) return;
+          if (taskId && taskId !== x.taskId) return;
 
-          if (x.taskId) {
-            rptWrk = new Work(x);
-            rptWrk.taskRef = TaskList.findId(x.taskId);
-            rptWrk.billed = false;
+          day = new Date(x.started)
+          key = day.setHours(0,0,0,0) * 1000 + x.taskId;
 
-            if (rptWrk.taskRef) {
-              if (rptWrk.taskRef.lastBill) {
-                if (rptWrk.started.getTime() < rptWrk.taskRef.lastBill.getTime() + 86399999) {
-                  rptWrk.billed = true;
-                }
-              } else {
-                // we assume no lastBill means billed
-                rptWrk.billed = true;
-              }
-            }
-
-            results.push(rptWrk);
-          }
-
-        });
-      }
-      return results;
-    },
-
-
-    reportTask: function (task, start, end) {
-      function hash(o) {
-        return o.day + o.taskId;
-      }
-
-      var shift = {};
-      var report = {};
-
-      report.work = {};
-      report.duration = 0;
-      report.units = 0;
-      report.income = 0.0;
-
-      // loop through date range
-      var cur = new Date(start);
-      while (cur.getTime() <= end.getTime()) {
-        shift = this.findId(cur.toISODateString());
-        cur.setDate(cur.getDate() + 1);
-        for (var i = 0; i < shift.work.length; i++) {
-
-          if (shift.work[i].taskId !== task.id) continue;
-
-          var work = {};
-          work.day = shift.id;
-          work.duration = shift.work[i].duration;
-          work.units = shift.work[i].units;
-          work.income = shift.work[i].income;
-          work.description = shift.work[i].description;
-          work.taskId = shift.work[i].taskId;
-
-          var key = hash(work);
-
-          if (report.work[key]) {
-            report.work[key].duration += work.duration;
-            report.work[key].units += work.units;
-            report.work[key].income += work.income;
-            if (report.work[key].description.length === 0) {
-              report.work[key].description = work.description;
-            } else {
-              report.work[key].description += work.description.length === 0 ? work.description : '\n' + work.description;
-            }
+          if (days[key]) {
+            days[key].work.push(x);
+            days[key].duration += x.duration;
+            days[key].units += x.units;
+            days[key].income += x.income;
           } else {
-            report.work[key] = work;
+            record = {
+              shiftId: id,
+              started: day,
+              taskId: x.taskId,
+              taskRef: TaskList.findId(x.taskId),
+              billed: true,
+              duration: x.duration,
+              units: x.units,
+              income: x.income,
+              work: [x]
+            };
+
+            if (record.taskRef.lastBill) {
+              record.billed = day > record.taskRef.lastBill ? false : true; 
+            }
+
+            days[key] = record;   // for lookup
+            results.push(record); // for returning an array
           }
 
-          report.duration += work.duration;
-          report.units += work.units;
-          report.income += work.income;
-        }
+        });  // shiftsCache[id].work.forEach
       }
-      return report;
+
+      return results;
     },
 
 
@@ -1164,8 +1127,6 @@ myModule.factory('cfWork', ['crossfilter', 'moment', 'ShiftList', function(cross
     p.units += v.units;
     p.income += v.income;
 
-    if (v.description) p.description[v.started.getTime()] = v.description;
-
     return p;
   }
 
@@ -1174,8 +1135,6 @@ myModule.factory('cfWork', ['crossfilter', 'moment', 'ShiftList', function(cross
     p.units -= v.units;
     p.income -= v.income;
 
-    delete p.description[v.started];
-
     return p;
   }
 
@@ -1183,8 +1142,7 @@ myModule.factory('cfWork', ['crossfilter', 'moment', 'ShiftList', function(cross
     return {
       hours: 0.0,
       units: 0.0,
-      income: 0.0,
-      description: {}
+      income: 0.0
     };
   }
 
@@ -1195,25 +1153,25 @@ myModule.factory('cfWork', ['crossfilter', 'moment', 'ShiftList', function(cross
   }
 
   // Constructor
-  function cfWork (range) {
+  function cfWork (range, taskId) {
     //
     // crossfilter
     //
-    this.cf = crossfilter(ShiftList.reportWork(range[0], range[1]));
+    this.cf = crossfilter(ShiftList.reportWork(range[0], range[1], taskId));
 
     //
     // dimensions
     //
     this.dims = {};
 
+    // start of day i.e. 12am
+    this.dims.day = this.cf.dimension(function (d) {
+      return d.started.getTime();
+    });
+
     // start of week
     this.dims.week = this.cf.dimension(function (d) {
       return moment(d.started).startOf('week').valueOf();
-    });
-
-    // start of day i.e. 12am
-    this.dims.day = this.cf.dimension(function (d) {
-      return moment(d.started).startOf('day').valueOf();
     });
 
     // day of week i.e. 0=Sun, 1=Mon, 2=Tue etc
@@ -1223,16 +1181,12 @@ myModule.factory('cfWork', ['crossfilter', 'moment', 'ShiftList', function(cross
 
     // project name
     this.dims.project = this.cf.dimension(function (d) {
-      return d.projectName || 'No Project';
+      return d.taskRef.projectName || 'No Project';
     });
 
     // task
     this.dims.task = this.cf.dimension(function (d) {
-      if (d.taskRef) {
-        return d.taskRef.id;
-      } else {
-        return 0;
-      }
+      return d.taskId || 0;
     });
 
     // billed
@@ -1268,7 +1222,7 @@ myModule.factory('cfWork', ['crossfilter', 'moment', 'ShiftList', function(cross
 
 
   return {
-    create: function (range) { return new cfWork(range); }
+    create: function (range, taskId) { return new cfWork(range, taskId); }
   };
 
 }]);

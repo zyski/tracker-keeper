@@ -90,45 +90,27 @@ angular.module('myApp.view-task', ['ngRoute', 'angularModalService'])
     if ($scope.settings.filters.day === 'Unbilled') {
       // find all work, then filter to billed == false
       range = [0, Date.now()];
-      cf = cfWork.create(range);
+      cf = cfWork.create(range, $scope.record.id);
       cf.dims.billed.filterExact(false);
     } else {
       // find range
       range = selects.dates.find($scope.settings.filters.day) || [0, Date.now()];
-      cf = cfWork.create(range);
+      cf = cfWork.create(range, $scope.record.id);
     }
 
     dims = cf.dims;
     groups = cf.groups;
     
-    // crossfilter returns all tasks so immediately filter to current taskId
-    dims.task.filterExact($scope.record.id);
-
     $scope.report.start = range[0];
     $scope.report.end = range[1];
     $scope.report.data = dims.day.bottom(Infinity);
 
-    // Split billed and unbilled, keeping a total
-    // todo: do we actually need this?
-    $scope.report.totals = {};
-    let sum = {};
-    sum.hours = 0;
-    sum.units = 0;
-    sum.income = 0;
-
-    $scope.report.totals.true  = { hours: 0, units: 0, income: 0 };
-    $scope.report.totals.false = { hours: 0, units: 0, income: 0 };
-    $scope.report.totals.total = { hours: 0, units: 0, income: 0 };
-
-    groups.billed.all().forEach(function (x, i, a) {
-      $scope.report.totals[x.key].hours = x.value.hours;
-      $scope.report.totals[x.key].units = x.value.units;
-      $scope.report.totals[x.key].income = x.value.income;
-
-      // Kepp a total
-      $scope.report.totals['total'].hours += x.value.hours;
-      $scope.report.totals['total'].units += x.value.units;
-      $scope.report.totals['total'].income += x.value.income;
+    $scope.report.sum = {};
+    groups.task.all().some(function (x, i, a) {
+      if (x.key === $scope.record.id) {
+        $scope.report.sum = x.value;
+        return true;
+      }
     });
 
     saveSettings();

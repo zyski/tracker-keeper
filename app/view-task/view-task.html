@@ -133,66 +133,47 @@
 
 
           <div class="row">
-            <div class="col-xs-12 col-sm-8 col-md-6">
+            <div class="col-md-12">
               <table class="table table-condensed">
                 <thead>
                   <tr>
-                    <th></th>
-                    <th class="text-right">Billed</th>
-                    <th class="text-right">Unbilled</th>
-                    <th class="text-right">Total</th>
+                    <th class="col-md-6">Date</th>
+                    <th class="text-right">Hours</th>
+                    <th class="text-right">Units</th>
+                    <th class="text-right">Income</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <th>Duration</th>
-                    <td class="text-right">{{report.totals.true.hours | time:'hours'}}</td>
-                    <td class="text-right">{{report.totals.false.hours | time:'hours'}}</td>
-                    <td class="text-right">{{report.totals.total.hours | time:'hours'}}</td>
+                  <tr ng-repeat-start="day in report.data" ng-click="day.showWork = !day.showWork">
+                    <td><a href="#/timesheet/{{day.shiftId}}">{{::day.started | date:'dd-MMM-yy (EEEE)'}}</a></td>
+                    <td class="text-right">{{::day.duration | time}}</td>
+                    <td class="text-right">{{::day.units | number:1}}</td>
+                    <td class="text-right">{{::day.income | currency}}</td>
+                    <td class="text-right"><span class="glyphicon glyphicon-ok" aria-hidden="true" ng-show="day.billed"></span></td>
                   </tr>
-                  <tr>
-                    <th>Units</th>
-                    <td class="text-right">{{report.totals.true.units | number:1}}</td>
-                    <td class="text-right">{{report.totals.false.units | number:1}}</td>
-                    <td class="text-right">{{report.totals.total.units | number:1}}</td>
-                  </tr>
-                  <tr>
-                    <th>Income</th>
-                    <td class="text-right">{{report.totals.true.income | currency}}</td>
-                    <td class="text-right">{{report.totals.false.income | currency}}</td>
-                    <td class="text-right">{{report.totals.total.income | currency}}</td>
+                  <tr ng-repeat-end ng-show="day.showWork">
+                    <td colspan="5" style="padding:0">
+                      <table class="table table-condensed">
+                        <tr ng-repeat="work in day.work">
+                          <td class="col-md-3">{{::work.started | date:'hh:mm a'}} - {{::work.finished | date:'hh:mm a'}}</td>
+                          <td class="col-md-9">{{::work.description}}</td>
+                        </tr>
+                      </table>
+                    </td>
                   </tr>
                 </tbody>
+                <tfoot>
+                  <tr>
+                    <th></th>
+                    <th class="text-right">{{report.sum.hours | time:'hours'}}</th>
+                    <th class="text-right">{{report.sum.units | number:1}}</th>
+                    <th class="text-right">{{report.sum.income | currency}}</th>
+                    <th></th>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           </div>
-
-          <table class="table table-condensed">
-            <thead>
-              <tr>
-                <th class=""><span class="sr-only">Billed</span></th>
-                <th class="col-sm-2">Started</th>
-                <th class="text-right">Duration</th>
-                <th class="text-right">$/Hour</th>
-                <th class="text-right">Units</th>
-                <th class="text-right">$/Unit</th>
-                <th class="text-right">Income</th>
-                <th class="col-md-6">Comments</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr ng-repeat="work in report.data">
-                <td class="text-right"><span class="glyphicon glyphicon-ok" aria-hidden="true" ng-show="work.billed"></span></td>
-                <td><a href="#/timesheet/{{work.day}}">{{::work.started | date:'dd-MMM-yy&nbsp;HH:mm'}}</a></td>
-                <td class="text-right">{{::work.duration | time}}</td>
-                <td class="text-right">{{::work.rateHour | currency}}</td>
-                <td class="text-right">{{::work.units | number:1}}</td>
-                <td class="text-right">{{::work.rateUnit | currency}}</td>
-                <td class="text-right">{{::work.income | currency}}</td>
-                <td class="text-pre-line">{{::work.description}}</td>
-              </tr>
-            </tbody>
-          </table>
 
         </div> <!-- column -->
       </div> <!-- row -->
