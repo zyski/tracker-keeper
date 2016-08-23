@@ -149,3 +149,6 @@ hc-chart {
 .hc-chart-sm {
   height: 150px;
 }
+.no-padding {
+  padding: 0 !important;
+}
