@@ -180,7 +180,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="task in reminders | orderBy:'getTimeRem' | limitTo:5">
+            <tr ng-repeat="task in reminders | orderBy:'getTimeRem'">
               <td class="text-pre-line"><a href="" ng-href="#/task/{{task.id}}"><strong>{{task.name}}</strong></a><br>{{task.notes}}</td>
               <td class="text-right">{{task.reminder | dueInDays}}</td>
             </tr>
