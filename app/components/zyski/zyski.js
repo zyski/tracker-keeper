@@ -549,7 +549,7 @@ myModule.factory('Shift', ['$filter', 'Keys', 'Work', function($filter, Keys, Wo
 /**
   * Hold a set of Shifts
   */
-myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter, Shift, TaskList) {
+myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', 'Work', function($filter, Shift, TaskList, Work) {
 
   // Private Properties 
   
@@ -580,7 +580,26 @@ myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter,
           if (x.taskId) {
             var tmp = angular.copy(x);
             tmp.taskRef = TaskList.findId(x.taskId);
+            tmp.weekDay = tmp.started.getDay();
             results.push(tmp);
+          }
+        });
+      }
+      return results;
+    },
+
+
+    // Create a report of all work assigned to a task
+    reportWork: function () {
+      var results = [];
+      var rptWrk = {};
+
+      for (var id in shiftsCache) {
+        shiftsCache[id].work.forEach(function(x, i, a) {
+          if (x.taskId) {
+            rptWrk = new Work(x);
+            rptWrk.taskRef = TaskList.findId(x.taskId);
+            results.push(rptWrk);
           }
         });
       }
@@ -614,7 +633,8 @@ myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter,
           work.day = shift.id;
           work.duration = shift.work[i].duration;
           work.units = shift.work[i].units;
-          work.income = work.duration / 3600000 * task.rateHour + work.units * task.rateUnit;
+          work.income = shift.work[i].income;
+          //work.income = work.duration / 3600000 * task.rateHour + work.units * task.rateUnit;
           work.description = shift.work[i].description;
           work.taskId = shift.work[i].taskId;
 
@@ -665,7 +685,7 @@ myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter,
           value.day = shift.id;
           value.duration = shift.work[i].duration;
           value.units = shift.work[i].units;
-          value.income = 0.0;
+          value.income = shift.work[i].income;
           value.description = shift.work[i].description;
           value.taskId = shift.work[i].taskId;
 
@@ -673,7 +693,7 @@ myModule.factory('ShiftList', ['$filter', 'Shift', 'TaskList', function($filter,
           if (task) {
             value.taskName = task.name;
             value.projectName = task.projectName || null;
-            value.income = value.duration / 3600000 * task.rateHour + value.units * task.rateUnit;
+            //value.income = value.duration / 3600000 * task.rateHour + value.units * task.rateUnit;
           } else {
             value.taskName = 'No task';
             value.projectName = null;

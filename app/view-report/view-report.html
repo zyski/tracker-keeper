@@ -19,17 +19,56 @@
 
   <div class="row">
     <div class="col-sm-12 col-md-9">
-        <span>{{totIncome}}</span>
-        <div class="btn-group" role="group" aria-label="...">
-          <button type="button" class="btn btn-default">1wk</button>
-          <button type="button" class="btn btn-default">This FY</button>
-          <button type="button" class="btn btn-default">Last FY</button>
-        </div>
+
+      <div class="zg-toolbar">
+        <form class="form-inline" novalidate name="" role="form">
+
+          <div class="btn-group" dropdown is-open="status.projectOpen">
+            <button type="button" class="btn btn-default dropdown-toggle" dropdown-toggle>{{filters.project}} <span class="caret"></span></button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="" ng-click="filterProject(); status.projectOpen = 0">All</a></li>
+              <li ng-repeat="project in projects"><a href="" ng-click="filterProject($index); status.projectOpen = 0">{{project.key}}</a></li>
+            </ul>
+          </div>
+
+
+        </form>
+      </div> <!-- zg-toolbar -->
     </div>
   </div>
 
   <div class="row">
-    <div class="col-sm-12 col-md-9">
+    <div class="col-md-12">
+      <table class="table">
+        <tr>
+          <th>Task</th>
+          <th class="text-right">Sun</th>
+          <th class="text-right">Mon</th>
+          <th class="text-right">Tue</th>
+          <th class="text-right">Wed</th>
+          <th class="text-right">Thu</th>
+          <th class="text-right">Fri</th>
+          <th class="text-right">Sat</th>
+          <th class="text-right">Total</th>
+        </tr>
+        <tr ng-repeat="task in tasks">
+          <td>{{task.key}}</td>
+          <td class="text-right">{{task.value.income[0] | currency}}</td>
+          <td class="text-right">{{task.value.income[1] | currency}}</td>
+          <td class="text-right">{{task.value.income[2] | currency}}</td>
+          <td class="text-right">{{task.value.income[3] | currency}}</td>
+          <td class="text-right">{{task.value.income[4] | currency}}</td>
+          <td class="text-right">{{task.value.income[5] | currency}}</td>
+          <td class="text-right">{{task.value.income[6] | currency}}</td>
+          <td class="text-right">{{task.value.income[7] | currency}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="col-md-12">
       <div class="row">
         <div class="col-md-6">
           <div class="panel panel-default">
