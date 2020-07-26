@@ -124,24 +124,38 @@ angular.module('myApp.view-task', ['ngRoute', 'angularModalService'])
         break;
 
       case 5:
+        // Last bill
+        if ($scope.record.lastBill == null) {
+          // Set to this FY
+          $scope.summary.start = new Date(now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear(), 6, 1);
+          $scope.summary.end = new Date(now);
+        } else {
+          // Last bill + 1 day
+          var lb = $scope.record.lastBill
+          $scope.summary.start = new Date(lb.getFullYear(), lb.getMonth(), lb.getDate() + 1);
+          $scope.summary.end = new Date(now);
+        }
+        break;
+
+      case 6:
         // Last seven days
         $scope.summary.start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
         $scope.summary.end = new Date(now);
         break;
 
-      case 6:
+      case 7:
         // Last fourteen days
         $scope.summary.start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 13);
         $scope.summary.end = new Date(now);
         break;
 
-      case 7:
+      case 8:
         // Last twenty days
         $scope.summary.start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 19);
         $scope.summary.end = new Date(now);
         break;
 
-      case 8:
+      case 9:
         // Last 365 days
         $scope.summary.start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 364);
         $scope.summary.end = new Date(now);
@@ -154,7 +168,7 @@ angular.module('myApp.view-task', ['ngRoute', 'angularModalService'])
         $scope.summary.end = new Date(now);
         break;
     };
-    
+
     $scope.summary.report = ShiftList.reportTask($scope.record, $scope.summary.start, $scope.summary.end);
   };
 
@@ -175,7 +189,7 @@ angular.module('myApp.view-task', ['ngRoute', 'angularModalService'])
     }
 
     $scope.summary = {};
-    $scope.summary.types = ['Today', 'This Week', 'This Month', 'This FY', 'Last FY', 'Last 7 days', 'Last 14 days', 'Last 20 days', 'Last 365 days'];
+    $scope.summary.types = ['Today', 'This Week', 'This Month', 'This FY', 'Last FY', 'Since Last Bill', 'Last 7 days', 'Last 14 days', 'Last 20 days', 'Last 365 days'];
     $scope.summary.typeName = $scope.summary.types[$scope.settings.summary.type];
     $scope.summary.report = {};
     $scope.summary.start = {};
