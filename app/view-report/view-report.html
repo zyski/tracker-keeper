@@ -16,97 +16,56 @@
 </nav>
 
 <div class="container-fluid">
-  <h3></h3>
+
   <div class="row">
-    <div class="col-md-3">
-        <form role="form">
-          <div class="form-group">
-            <label>Period</label>
-            <select class="form-control" ng-model="filters.day" ng-change="filterDay()">
-              <option ng-repeat="option in selects.dates">{{option.key}}</option>
-            </select>
+    <div class="col-sm-12 col-md-9">
+
+      <div class="zg-toolbar">
+        <form class="form-inline" novalidate name="" role="form">
+
+          <div class="btn-group" dropdown is-open="status.projectOpen">
+            <button type="button" class="btn btn-default dropdown-toggle" dropdown-toggle>{{filters.project}} <span class="caret"></span></button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="" ng-click="filterProject(); status.projectOpen = 0">All</a></li>
+              <li ng-repeat="project in projects"><a href="" ng-click="filterProject($index); status.projectOpen = 0">{{project.key}}</a></li>
+            </ul>
           </div>
 
-          <div class="form-group">
-            <label>Project</label>
-            <select class="form-control" ng-model="filters.project" ng-change="filterProject()">
-              <option ng-repeat="option in selects.projects">{{option.key}}</option>
-            </select>
-          </div>
 
-          <div class="form-group">
-            <label>Billed</label>
-            <select class="form-control" ng-model="filters.billed" ng-change="filterBilled()">
-              <option ng-repeat="option in selects.billed">{{option.key}}</option>
-            </select>
-          </div>
         </form>
-    </div>
-
-    <div class="col-md-3">
-      <h1 class="text-center">{{taskTotal.hours | number:0}}</h1>
-      <h6 class="text-center">Hours</h6>
-      <h1 class="text-center">{{taskTotal.units | number:0}}</h1>
-      <h6 class="text-center">Units</h6>
-      <h1 class="text-center">{{taskTotal.income | currency:'$':0}}</h1>
-      <h6 class="text-center">Income</h6>
-    </div>
-  
-
-    <div class="col-md-6">
-      <hc-chart>
-        <hc-options ng-model="charts.week.init"></hc-options>
-        <hc-series ng-model="charts.week.seriesIn" hc-options="{ name: 'Income', type: 'line'}"></hc-series>
-        <hc-series ng-model="charts.week.seriesHr" hc-options="{ name: 'Hours', type: 'line', yAxis: 1}"></hc-series>
-      </hc-chart>
+      </div> <!-- zg-toolbar -->
     </div>
   </div>
-
-
 
   <div class="row">
-    <div class="col-sm-12 col-md-6">
-      <table class="table table-condensed">
-        <thead>
-          <tr>
-            <th class="col-md-6"><span ng-click="changeSort('name')">Task</span></th>
-            <th class="text-right"><span ng-click="changeSort('hours')">Hours</span></th>
-            <th class="text-right"><span ng-click="changeSort('units')">Units</span></th>
-            <th class="text-right"><span ng-click="changeSort('income')">Income</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="task in tasks | orderBy:sort.field:sort.reverse" ng-click="filterTask(task.name)" ng-class="{active: task.name == filters.task}">
-            <td>{{::task.name}}</td>
-            <td class="text-right">{{::task.hours | number:2}}</td>
-            <td class="text-right">{{::task.units | number:1}}</td>
-            <td class="text-right">{{::task.income | currency}}</td>
-          </tr>
-        </tbody>
+    <div class="col-md-12">
+      <table class="table">
+        <tr>
+          <th>Task</th>
+          <th class="text-right">Sun</th>
+          <th class="text-right">Mon</th>
+          <th class="text-right">Tue</th>
+          <th class="text-right">Wed</th>
+          <th class="text-right">Thu</th>
+          <th class="text-right">Fri</th>
+          <th class="text-right">Sat</th>
+          <th class="text-right">Total</th>
+        </tr>
+        <tr ng-repeat="task in tasks">
+          <td>{{task.key}}</td>
+          <td class="text-right">{{task.value.income[0] | currency}}</td>
+          <td class="text-right">{{task.value.income[1] | currency}}</td>
+          <td class="text-right">{{task.value.income[2] | currency}}</td>
+          <td class="text-right">{{task.value.income[3] | currency}}</td>
+          <td class="text-right">{{task.value.income[4] | currency}}</td>
+          <td class="text-right">{{task.value.income[5] | currency}}</td>
+          <td class="text-right">{{task.value.income[6] | currency}}</td>
+          <td class="text-right">{{task.value.income[7] | currency}}</td>
+        </tr>
       </table>
     </div>
-    <div class="col-sm-12 col-md-6">
-      <table class="table table-condensed" ng-show="topWork">
-        <thead>
-          <tr>
-            <th class="col-md-3"><span ng-click="changeSort('')">Day</span></th>
-            <th class="text-right"><span ng-click="changeSort('')">Hours</span></th>
-            <th class="text-right"><span ng-click="changeSort('')">Rate</span></th>
-            <th class="col-md-6"><span ng-click="changeSort('')">Comments</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="work in topWork">
-            <td>{{::work.started | date:'dd/MM/yy h:mm a'}}</td>
-            <td class="text-right">{{::work.duration / 3600000 | number:2}}</td>
-            <td class="text-right">{{::work.rateHour | number:2}}</td>
-            <td>{{::work.description}}</td>
-          </tr>
-        </tbody>
-      </table>
   </div>
 
-<!-- 
 
   <div class="row">
     <div class="col-md-12">
@@ -121,7 +80,7 @@
               </hc-chart>
             </div>
           </div>
-        </div>
+        </div> <!-- column -->
       </div>
     </div>
   </div>
@@ -140,7 +99,7 @@
               </hc-chart>
             </div>
           </div>
-        </div>
+        </div> <!-- column -->
         <div class="col-md-6">
           <div class="panel panel-default">
             <div class="panel-body">
@@ -151,8 +110,8 @@
               </hc-chart>
             </div>
           </div>
-        </div>
-      </div>
+        </div> <!-- column -->
+      </div> <!-- row -->
 
 
       <div class="row">
@@ -168,7 +127,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> <!-- row -->
 
 
       <div class="row">
@@ -183,7 +142,7 @@
               </hc-chart>
             </div>
           </div>
-        </div>
+        </div> <!-- column -->
 
         <div class="col-md-6">
           <div class="panel panel-default">
@@ -195,8 +154,8 @@
               </hc-chart>
             </div>
           </div>
-        </div>
-      </div>
+        </div> <!-- column -->
+      </div> <!-- row -->
 
 
       <div class="row">
@@ -210,7 +169,7 @@
               </hc-chart>
             </div>
           </div>
-        </div>
+        </div> <!-- column -->
 
         <div class="col-md-6">
           <div class="panel panel-default">
@@ -222,9 +181,9 @@
               </hc-chart>
             </div>
           </div>
-        </div>
+        </div> <!-- column -->
 
-      </div>
+      </div> <!-- row -->
 
 
     </div>
@@ -236,6 +195,7 @@
         </a>
       </div>
 
+      <!--
       <div class="row">
         <div class="col-md-12">
           <table class="table">
@@ -260,9 +220,9 @@
           </table>
         </div>
       </div>
+    -->
     </div>
   </div>
--->
 
 
 </div> <!-- container -->
