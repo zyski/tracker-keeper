@@ -199,43 +199,50 @@ myModule.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$route
         $scope.summary.end = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), $scope.dt.getDate() + 7 - day);
         break;
 
-      case 2:
+        case 2:
+          // this fortnight (Last Monday -> This Sunday). Sunday=0 in javascript so change to 7 to make calcs easier
+          var day = $scope.dt.getDay() || 7;
+          $scope.summary.start = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), $scope.dt.getDate() - 6 - day);
+          $scope.summary.end = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), $scope.dt.getDate() + 7 - day);
+          break;
+  
+      case 3:
         // this calendar month
         $scope.summary.start = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), 1);
         $scope.summary.end = new Date($scope.dt.getFullYear(), $scope.dt.getMonth() + 1, 0);
         break;
 
-      case 3:
+      case 4:
         // this FY
         $scope.summary.start = new Date($scope.dt.getMonth() < 6 ? $scope.dt.getFullYear() - 1 : $scope.dt.getFullYear(), 6, 1);
         $scope.summary.end = new Date($scope.dt);
         break;
 
-      case 4:
+      case 5:
         // last FY
         $scope.summary.start = new Date($scope.dt.getMonth() < 6 ? $scope.dt.getFullYear() - 2 : $scope.dt.getFullYear() - 1, 6, 1);
         $scope.summary.end = new Date($scope.summary.start.getFullYear() + 1, 5, 30);
         break;
 
-      case 5:
+      case 6:
         // Last seven days
         $scope.summary.start = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), $scope.dt.getDate() - 6);
         $scope.summary.end = new Date($scope.dt);
         break;
 
-      case 6:
+      case 7:
         // Last fourteen days
         $scope.summary.start = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), $scope.dt.getDate() - 13);
         $scope.summary.end = new Date($scope.dt);
         break;
 
-      case 7:
+      case 8:
         // Last twenty days
         $scope.summary.start = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), $scope.dt.getDate() - 19);
         $scope.summary.end = new Date($scope.dt);
         break;
 
-      case 8:
+      case 9:
         // Last 365 days
         $scope.summary.start = new Date($scope.dt.getFullYear(), $scope.dt.getMonth(), $scope.dt.getDate() - 364);
         $scope.summary.end = new Date($scope.dt);
@@ -320,7 +327,7 @@ myModule.controller('viewTimesheetCtrl', ['$scope', '$filter', '$route', '$route
     $scope.newWorkTaskId = null;
 
     $scope.summary = {};
-    $scope.summary.types = ['Today', 'This Week', 'This Month', 'This FY', 'Last FY', 'Last 7 days', 'Last 14 days', 'Last 20 days', 'Last 365 days'];
+    $scope.summary.types = ['Today', 'This Week', 'This Fortnight', 'This Month', 'This FY', 'Last FY', 'Last 7 days', 'Last 14 days', 'Last 20 days', 'Last 365 days'];
     $scope.summary.typeName = $scope.summary.types[$scope.settings.summary.type];
     $scope.summary.report = {};
     $scope.summary.total = {};
