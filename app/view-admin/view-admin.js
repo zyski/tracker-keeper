@@ -39,6 +39,26 @@ angular.module('myApp.view-admin', ['ngRoute', 'angularModalService'])
     }
   }
 
+  $scope.trimWork = function () {
+    var task,
+        time = Date.now(),
+        today = new Date(),
+        delete_before = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 740),
+        delete_id = delete_before.toISODateString();
+
+    $scope.trimWorkStatus = "Running...";
+
+    ShiftList.shifts.forEach(function (sx, si, sa) {
+      
+      if (sx.id < delete_before.toISODateString()) {
+        ShiftList.delete(sx.id);
+      }
+    });
+    ShiftList.saveShiftsCache();
+    
+    $scope.trimWorkStatus = "Completed in " + (Date.now() - time) + "ms";
+  };
+
   $scope.recalcWork = function () {
     var task,
         time = Date.now();

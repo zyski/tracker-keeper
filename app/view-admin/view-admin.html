@@ -36,6 +36,23 @@
           <td>Export all data from browser local storage to a file for later import. Clicking on the link will download the file immediately.</td>
         </tr>
         <tr>
+          <td>Trim Work (time entries)</td>
+          <td>
+            <form>
+              <!-- todo: make the re-calc work from a specific date through to now
+              <div class="form-group">
+                <label for="recalcDate">From</label>
+                <input type="date" class="form-control" id="recalcDate" placeholder="From Date">
+              </div>
+            -->
+              <span>
+                <button class="btn btn-default" ng-click="trimWork()">Run</button>&nbsp;&nbsp;{{trimWorkStatus}}
+              </span>
+            </form>
+          </td>
+          <td>Will read in all Work (time entries), keeping the latest 740 days worth of entries, removing the rest. <strong>Careful, advise you backup your data first using the Export tool above.</strong></td>
+        </tr>
+        <tr>
           <td>Re-calc Work</td>
           <td>
             <form>
